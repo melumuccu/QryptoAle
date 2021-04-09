@@ -1,3 +1,8 @@
+/**
+ * Binanceからの情報の取得など、基本的な処理を記載するクラス
+ */
+
+
 const Binance = require('node-binance-api');
 
 export class BinanceUtil {
@@ -43,8 +48,9 @@ export class BinanceUtil {
       binance.trades(symbol, (error, trades, symbol) => {
         // UnixTimeを変換
         for( let key in trades ) {
-          let dateTime = new Date(trades[key]['time'] * 1000);
-          trades[key]['time'] = dateTime.toString();
+          // console.log(trades[key]['time']);
+          let dateTime = new Date(trades[key]['time']);
+          trades[key]['time'] = `${dateTime.toLocaleDateString('ja-JP')} ${dateTime.toLocaleTimeString('ja-JP')}`;
         }
         if( typeof trades !== undefined ) {
           // console.log(symbol+" trade history", trades);
@@ -63,12 +69,9 @@ export class BinanceUtil {
   // 取引履歴(売り買い指定)を取得
   async getSymbolTradesBuyOrSell( isBuy: boolean, symbol: string, binance: typeof Binance) {
     const allTrades: any = await this.getSymbolTrades(symbol, binance)
-                              .then(result => {
-                                return result;
-                              }).catch(error => {
-                                console.log(error);
-                              });
-    console.log(allTrades);
+                                  .then(result => { return result; })
+                                  .catch(error => { console.error(error); });
+    // console.log(allTrades);
 
     let buyTrades = [];
     for(let trade of allTrades) {
@@ -118,7 +121,7 @@ export class BinanceUtil {
     let balanceList: string[] = [];
     const balanceOfHasCoins: any = await this.getAllBalances(binance)
                                           .then(result => {return result})
-                                          .catch(error => console.log(error));
+                                          .catch(error => console.error(error));
     // console.log(balanceOfHasCoins);
 
     for( let balance in balanceOfHasCoins ) {
