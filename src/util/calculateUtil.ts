@@ -19,7 +19,7 @@ export class CalculateUtil {
    * @param binance 
    * @returns 平均価格 BigNumber型
    */
-  calAveOfPrice(trades: any[], binance: typeof Binance): typeof BigNumber {
+  calAvePrice(trades: any[], binance: typeof Binance): typeof BigNumber {
     let sumPriceB = new BigNumber(0);
     let divisionNum = 0;
     // 各取引履歴の取引時の値段を全て足す
@@ -68,7 +68,7 @@ export class CalculateUtil {
     
     // console.log('buyTrades = ');
     // console.log(buyTrades);
-    console.log('buyTrades.length = ' + buyTrades.length);
+    // console.log('buyTrades.length = ' + buyTrades.length);
 
     for(let i=0; i<buyTrades.length; i++) {
       // console.log('---------------------------------------');
@@ -85,16 +85,12 @@ export class CalculateUtil {
         buyTrades[i]['qty'] = Math.abs(parseFloat(allSellQty)).toString();
         // console.log('Math.abs(allSellQty.parseFloat).toString = ' + Math.abs(parseFloat(allSellQty)).toString());
         const splicedTrade: any[] = buyTrades.splice(0, i);
-        console.log('splicedTrade = ');
-        console.log(splicedTrade);
+        // console.log('splicedTrade = ');
+        // console.log(splicedTrade);
         break
       }else{
-        // const splicedTrade: any[] = buyTrades.splice(0, 1);
         delete buyTrades[i];
-
         // console.log('buyTrades.length = ' + buyTrades.length);
-        // console.log('buyTrades.splice(0, 1) = ');
-        // console.log(splicedTrade);
         continue;
       }
     }

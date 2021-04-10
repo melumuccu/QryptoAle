@@ -1,19 +1,27 @@
 import {login} from './config/login';
+import {Config} from './config/config';
 import {BinanceUtil} from './util/binanceUtil';
 import {CalculateUtil} from './util/calculateUtil';
+import {BinanceService} from './service/binanceService'
 
+//  クラス作成
+const config = new Config();
+const binanceUtil = new BinanceUtil();
+const calculateUtil = new CalculateUtil();
+const binanceService = new BinanceService();
+
+// 各種コンフィグ
+const symbol = config.symbol;
+const coin = config.coin;
+const buy = config.buy;
+const sell = config.sell;
+
+// Binance ログイン
 const Binance = require('node-binance-api');
 const binance = new Binance().options(login);
 
-const symbol = 'BTCUSDT';
-const coin = 'BTC';
-const buy = true;
-const sell = false;
 
 
-//  クラス作成
-const binanceUtil = new BinanceUtil();
-const calculateUtil = new CalculateUtil();
 
 // -------------- binanceUtilクラス_基本編 --------------
 
@@ -54,35 +62,8 @@ const calculateUtil = new CalculateUtil();
 
 
 // -------------- binanceUtilクラス_発展編 --------------
-/**
- * 「売却数分差し引いた購入履歴」から平均購入価額を算出する(１通貨分)
- */
-// binanceUtil.getSymbolTradesBuyOrSell( buy, symbol, binance ) 
-//   .then(result => {
-//     const avePrice = calculateUtil.calAveOfPrice(result, binance);
-//     console.log(`calAveOfPrice: `);
-//     console.log(parseFloat(avePrice));
-//   });
 
-//   let sumSellQty = null;
-//   binanceUtil.getSymbolTradesBuyOrSell( sell, symbol, binance ) 
-//   .then(result => {
-//     sumSellQty = calculateUtil.calSumOfQty(result, binance);
-//     // console.log(`calSumOfQty: sumSellQty=`);
-//     // console.log(parseFloat(sumSellQty));
-
-//     let buyTradesHaveNow = null;
-//     binanceUtil.getSymbolTradesBuyOrSell( buy, symbol, binance ) 
-//     .then(result => {
-//       buyTradesHaveNow = calculateUtil.calTradesHaveNow(result, sumSellQty, binance);
-//       console.log(`calTradesHaveNow: buyTradesHaveNow=`);
-//       console.log(buyTradesHaveNow);
-//       const avePriceHaveNow = calculateUtil.calAveOfPrice(buyTradesHaveNow, binance);      console.log(`calTradesHaveNow: buyTradesHaveNow=`);
-//       console.log('avePriceHaveNow = ');
-//       console.log(parseFloat(avePriceHaveNow));
-//     });
-//   });
-
+binanceService.calAvePriceHaveNow(symbol, binance);
 
 
   

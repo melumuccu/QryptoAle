@@ -132,7 +132,7 @@ export class BinanceUtil {
     if(balanceList !== undefined) {
       return balanceList;
     }else{
-      console.log('error: getHasCoinList')
+      console.error('error: getHasCoinList')
     }
   }
 
