@@ -18,12 +18,41 @@ const Binance = require('node-binance-api');
 
 export class BinanceService {
 
+  // /**
+  //  * 「売却数分差し引いた購入履歴」から平均購入価額を算出する
+  //  * @param symbol 通貨ペア
+  //  * @param binance 
+  //  */
+  // calAvePriceHaveNow(symbol: string, binance: typeof Binance) { 
+  //   let sumSellQty = null;
+  //   binanceUtil.getSymbolTradesBuyOrSell( config.sell, symbol, binance ) 
+  //   .then(result => {
+  //     sumSellQty = calculateUtil.calSumOfQty(result, binance);
+  //     // console.log(`calSumOfQty: sumSellQty=`);
+  //     // console.log(parseFloat(sumSellQty));
+  
+  //     let buyTradesHaveNow = null;
+  //     binanceUtil.getSymbolTradesBuyOrSell( config.buy, symbol, binance ) 
+  //     .then(result => {
+  //       buyTradesHaveNow = calculateUtil.calTradesHaveNow(result, sumSellQty, binance);
+  //       // console.log(`calTradesHaveNow: buyTradesHaveNow=`);
+  //       // console.log(buyTradesHaveNow);
+  //       const avePriceHaveNow = calculateUtil.calAvePrice(buyTradesHaveNow, binance);      
+        
+  //       console.log('avePriceHaveNow: ' + symbol + ' = ');
+  //       console.log(parseFloat(avePriceHaveNow));
+  //     });
+  //   });
+  // }
+
   /**
    * 「売却数分差し引いた購入履歴」から平均購入価額を算出する
    * @param symbol 通貨ペア
    * @param binance 
    */
-  calAvePriceHaveNow(symbol: string, binance: typeof Binance) { 
+  calAvePriceHaveNow(symbol: string, binance: typeof Binance)
+  
+  { 
     let sumSellQty = null;
     binanceUtil.getSymbolTradesBuyOrSell( config.sell, symbol, binance ) 
     .then(result => {
@@ -40,7 +69,7 @@ export class BinanceService {
         const avePriceHaveNow = calculateUtil.calAvePrice(buyTradesHaveNow, binance);      
         
         console.log('avePriceHaveNow: ' + symbol + ' = ');
-        console.log(parseFloat(avePriceHaveNow));
+        console.log(avePriceHaveNow.toNumber());
       });
     });
   }

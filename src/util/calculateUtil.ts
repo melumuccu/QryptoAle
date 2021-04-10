@@ -2,8 +2,8 @@
  * 主に計算などの処理をまとめるクラス
  */
 
+import BigNumber from 'bignumber.js' // 少数の計算を正確に行うためのライブラリ
 const Binance = require('node-binance-api');
-const BigNumber = require('bignumber.js');// 少数の計算を正確に行うためのライブラリ
 
 // ------------------------------------------
 
@@ -15,7 +15,7 @@ export class CalculateUtil {
    * @param binance 
    * @returns 平均価格
    */
-  calAvePrice(trades: any[], binance: typeof Binance): typeof BigNumber {
+  calAvePrice(trades: any[], binance: typeof Binance): BigNumber {
     let sumPriceB = new BigNumber(0);
     let divisionNum = 0;
     // 各取引履歴の取引時の値段を全て足す
@@ -40,7 +40,7 @@ export class CalculateUtil {
    * @param binance 
    * @returns 合計取引数量
    */
-  calSumOfQty(trades: any[], binance: typeof Binance): typeof BigNumber {
+  calSumOfQty(trades: any[], binance: typeof Binance): BigNumber {
     let sumQtyB = new BigNumber(0);
     // 各取引履歴の取引量を全て足す
     for(let trade of trades) {
@@ -60,7 +60,7 @@ export class CalculateUtil {
    * @param binance 
    * @returns 売却数量分が差し引かれた後の購入履歴
    */
-  calTradesHaveNow(buyTrades: any[], allSellQty: typeof BigNumber, binance: typeof Binance): {[key: string]: string;}[] {
+  calTradesHaveNow(buyTrades: any[], allSellQty: BigNumber, binance: typeof Binance): {[key: string]: string;}[] {
     
     // console.log('buyTrades = ');
     // console.log(buyTrades);
@@ -78,7 +78,7 @@ export class CalculateUtil {
       // 全売却数量から購入数を差し引いた結果
       if(allSellQty.lt(0)) { // sellQty < 0
         // console.log('allSellQty = ' + parseFloat(allSellQty));
-        buyTrades[i]['qty'] = Math.abs(parseFloat(allSellQty)).toString();
+        buyTrades[i]['qty'] = Math.abs(allSellQty.toNumber()).toString();
         // console.log('Math.abs(allSellQty.parseFloat).toString = ' + Math.abs(parseFloat(allSellQty)).toString());
         const splicedTrade: any[] = buyTrades.splice(0, i);
         // console.log('splicedTrade = ');
