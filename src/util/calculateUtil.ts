@@ -9,15 +9,11 @@ const BigNumber = require('bignumber.js');// 少数の計算を正確に行う�
 
 export class CalculateUtil {
 
-  // ひながた
-  aaa(binance: typeof Binance) {
-  }
-
   /**
    * 渡した売買履歴から平均価格を算出
    * @param trades 任意の売買履歴
    * @param binance 
-   * @returns 平均価格 BigNumber型
+   * @returns 平均価格
    */
   calAvePrice(trades: any[], binance: typeof Binance): typeof BigNumber {
     let sumPriceB = new BigNumber(0);
@@ -42,7 +38,7 @@ export class CalculateUtil {
    * 渡した売買履歴から合計取引量を算出
    * @param trades 任意の売買履歴
    * @param binance 
-   * @returns 合計取引数量 BigNumber型
+   * @returns 合計取引数量
    */
   calSumOfQty(trades: any[], binance: typeof Binance): typeof BigNumber {
     let sumQtyB = new BigNumber(0);
@@ -64,7 +60,7 @@ export class CalculateUtil {
    * @param binance 
    * @returns 売却数量分が差し引かれた後の購入履歴
    */
-  calTradesHaveNow(buyTrades: any[], allSellQty: typeof BigNumber, binance: typeof Binance): any[] {
+  calTradesHaveNow(buyTrades: any[], allSellQty: typeof BigNumber, binance: typeof Binance): {[key: string]: string;}[] {
     
     // console.log('buyTrades = ');
     // console.log(buyTrades);
@@ -94,7 +90,7 @@ export class CalculateUtil {
         continue;
       }
     }
-    const buyTradesHaveNow: any[] = buyTrades;
+    const buyTradesHaveNow: {[key: string]: string;}[] = buyTrades;
     return buyTradesHaveNow;
   }
 

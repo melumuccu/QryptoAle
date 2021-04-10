@@ -6,9 +6,14 @@
 const Binance = require('node-binance-api');
 
 export class BinanceUtil {
-  // 指定ペア
-  // 金額を取得
-  getSymbolPrice(symbol: string, binance: typeof Binance) {
+
+  /**
+   * 指定ペアの現在価格を取得
+   * @param symbol 指定ペア
+   * @param binance 
+   * @returns 指定ペアの現在価格
+   */
+  getSymbolPrice(symbol: string, binance: typeof Binance): Promise<string> {
     return new Promise((resolve, reject) => {
 
       binance.prices(function(error, ticker) {
@@ -23,9 +28,13 @@ export class BinanceUtil {
     });
   }
 
-  // 指定通貨
-  // 現在保有額を取得
-  getCoinBalance(coin: string, binance: typeof Binance) {
+  /**
+   * 指定通貨の現在保有数量を取得
+   * @param coin 指定通貨
+   * @param binance 
+   * @returns 現在保有数量
+   */
+  getCoinBalance(coin: string, binance: typeof Binance): Promise<string> {
     return new Promise((resolve, reject) => {
 
       binance.balance(function(error, balances) {
@@ -40,13 +49,18 @@ export class BinanceUtil {
     });
   }
 
-  // 指定ペア
-  // 取引履歴(売買両方)を取得(全ペア取得のメソッドは無い)
-  getSymbolTrades(symbol: string, binance: typeof Binance) {
+  /**
+   * 指定ペアの取引履歴(売買両方)を取得
+   * (全ペア分取得するメソッドは提供されていない)
+   * @param symbol 指定ペア
+   * @param binance 
+   * @returns 取引履歴(売買両方)
+   */
+  getSymbolTrades(symbol: string, binance: typeof Binance): Promise<{[key: string]: string;}[]> {
     return new Promise((resolve, reject) => {
 
-      binance.trades(symbol, (error, trades, symbol) => {
-        // UnixTimeを変換
+      binance.trades(symbol, (error, trades:{[key: string]: string;}[], symbol: string) => {
+        // UnixTime(13桁:ミリ秒)を変換
         for( let key in trades ) {
           // console.log(trades[key]['time']);
           let dateTime = new Date(trades[key]['time']);
@@ -63,17 +77,20 @@ export class BinanceUtil {
     });
   }
 
-
-
-  // 指定ペア
-  // 取引履歴(売り買い指定)を取得
-  async getSymbolTradesBuyOrSell( isBuy: boolean, symbol: string, binance: typeof Binance) {
+  /**
+   * 指定ペアの取引履歴(売り買い指定)を取得
+   * @param isBuy buy=true, sell=false
+   * @param symbol 指定ペア
+   * @param binance 
+   * @returns 取引履歴(売り買い指定)
+   */
+  async getSymbolTradesBuyOrSell( isBuy: boolean, symbol: string, binance: typeof Binance): Promise<{[key: string]: string;}[]> {
     const allTrades: any = await this.getSymbolTrades(symbol, binance)
                                   .then(result => { return result; })
                                   .catch(error => { console.error(error); });
     // console.log(allTrades);
 
-    let buyTrades = [];
+    let buyTrades: {[key: string]: string;}[] = [];
     for(let trade of allTrades) {
       // console.log(trade['isBuyer']);
       const isBuyer = trade['isBuyer'];
@@ -89,13 +106,16 @@ export class BinanceUtil {
     }
   }
 
-  // 全ペア
-  // 現在保有額を取得
-  getAllBalances(binance: typeof Binance): Promise<any> {
+  /**
+   * 全ペアの現在保有額を取得
+   * @param binance 
+   * @returns 全ペアの現在保有額
+   */
+  getAllBalances(binance: typeof Binance): Promise<{[key: string]: string;}> {
 
     return new Promise((resolve, reject) => {
 
-      let balanceOfHasCoins = {};
+      let balanceOfHasCoins: {[key: string]: string;} = {};
       binance.balance(function(error, balances) {
         if( typeof balances !== undefined ) {
           // 保有している通貨のみに限定
@@ -116,8 +136,12 @@ export class BinanceUtil {
     });
   }
 
-  // 現在保有している通貨リストを取得
-  async getHasCoinList(binance: typeof Binance) {
+  /**
+   * 現在保有している通貨リストを取得
+   * @param binance 
+   * @returns 保有通貨リスト
+   */
+  async getHasCoinList(binance: typeof Binance): Promise<string[]> {
     let balanceList: string[] = [];
     const balanceOfHasCoins: any = await this.getAllBalances(binance)
                                           .then(result => {return result})
