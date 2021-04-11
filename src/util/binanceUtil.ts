@@ -138,6 +138,7 @@ export class BinanceUtil {
 
   /**
    * 現在保有している通貨リストを取得
+   * 少額(USDT換算後、○○USDT以下)のコインは省く
    * @param binance 
    * @returns 保有通貨リスト
    */
@@ -151,7 +152,7 @@ export class BinanceUtil {
     for( let balance in balanceOfHasCoins ) {
       balanceList.push(balance);
     }
-    // console.log(balanceList);
+    console.log(balanceList);
 
     if(balanceList !== undefined) {
       return balanceList;

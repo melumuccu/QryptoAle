@@ -71,15 +71,15 @@ export class CalculateUtil {
       const buyQtyB = new BigNumber(parseFloat(buyTrades[i]['qty']));
       // console.log('buyQtyB = ' + buyQtyB);
       // console.log('-----------');
-      // console.log('allSellQty(before minus buyQtyB) = ' + parseFloat(allSellQty));
+      // console.log('allSellQty(before minus buyQtyB) = ' + allSellQty.toNumber());
       allSellQty = allSellQty.minus(buyQtyB);
-      // console.log('allSellQty(after minus buyQtyB) = ' + parseFloat(allSellQty));
+      // console.log('allSellQty(after minus buyQtyB) = ' + allSellQty.toNumber());
       // console.log('---------------------------------------');
       // 全売却数量から購入数を差し引いた結果
       if(allSellQty.lt(0)) { // sellQty < 0
-        // console.log('allSellQty = ' + parseFloat(allSellQty));
+        // console.log('allSellQty = ' + allSellQty.toNumber());
         buyTrades[i]['qty'] = Math.abs(allSellQty.toNumber()).toString();
-        // console.log('Math.abs(allSellQty.parseFloat).toString = ' + Math.abs(parseFloat(allSellQty)).toString());
+        // console.log('Math.abs(allSellQty.parseFloat).toString = ' + Math.abs(allSellQty.toNumber()).toString());
         const splicedTrade: any[] = buyTrades.splice(0, i);
         // console.log('splicedTrade = ');
         // console.log(splicedTrade);
@@ -90,7 +90,16 @@ export class CalculateUtil {
         continue;
       }
     }
-    const buyTradesHaveNow: {[key: string]: string;}[] = buyTrades;
+
+    let buyTradesHaveNow: {[key: string]: string;}[] = buyTrades;
+
+    // ToDo 外部送金料を考慮しないといけない
+    // (暫定的処理) XRPのように全ての購入数量を差し引いても売却数量が多い場合
+    // (=外部からの送金などで辻褄が合わない場合)
+    if(allSellQty.gt(0)){
+      buyTradesHaveNow = [];
+    }
+
     return buyTradesHaveNow;
   }
 

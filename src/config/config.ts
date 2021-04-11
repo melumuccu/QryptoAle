@@ -3,7 +3,7 @@
  */
 
 export class Config {
-  symbol = 'COTIUSDT';
+  symbol = 'SANDUSDT';
   coin = 'BTC';
   buy = true;
   sell = false;

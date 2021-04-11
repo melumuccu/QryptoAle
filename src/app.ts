@@ -61,11 +61,19 @@ const binance = new Binance().options(login);
 // });
 
 
-// -------------- binanceUtilクラス_発展編 --------------
+// -------------- binanceServiceクラス_発展編 --------------
 
-binanceService.calAvePriceHaveNow(symbol, binance);
+// const calAvePriceHaveNow = binanceService.calAvePriceHaveNow(symbol, binance);
+// console.log('calAvePriceHaveNow:' + symbol + ' = ');
+// console.log(calAvePriceHaveNow);
 
 
+binanceUtil.getHasCoinList(binance)
+.then(result => {
+  const calAvePriceHaveNow = binanceService.calAvePriceHaveNow(result, binance);
+  // console.log('calAvePriceHaveNow = ');
+  // console.log(calAvePriceHaveNow);
+});
   
 
 
