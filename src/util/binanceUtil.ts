@@ -2,6 +2,8 @@
  * Binanceからの情報の取得など、基本的な処理を記載するクラス
  */
 
+import BigNumber from "bignumber.js";
+
 
 const Binance = require('node-binance-api');
 
@@ -107,7 +109,7 @@ export class BinanceUtil {
   }
 
   /**
-   * 全ペアの現在保有額を取得
+   * 全ペアの現在保有額を取得(onOrderの数量を除く)
    * @param binance 
    * @returns 全ペアの現在保有額
    */
@@ -145,14 +147,39 @@ export class BinanceUtil {
   async getHasCoinList(binance: typeof Binance): Promise<string[]> {
     let balanceList: string[] = [];
     const balanceOfHasCoins: any = await this.getAllBalances(binance)
-                                          .then(result => {return result})
-                                          .catch(error => console.error(error));
+                                            .then(result => {return result})
+                                            .catch(error => console.error(error));
+    // console.log('balanceOfHasCoins = ' );
     // console.log(balanceOfHasCoins);
 
     for( let balance in balanceOfHasCoins ) {
-      balanceList.push(balance);
+
+      // console.log(balance);
+
+      const symbolPrice: string | void = await this.getSymbolPrice(balance + "USDT", binance)
+                                        .then(result => { 
+                                          // console.log( result );
+                                          return result 
+                                        }).catch(error => { console.error(error) });
+
+      if(typeof symbolPrice === "undefined") {
+        console.error(balance + ": symbolPrice === undefined");
+      }
+      // USDT換算
+      const availableAmountB = new BigNumber(parseFloat(balanceOfHasCoins[balance]['available']));
+      const symbolPriceB = new BigNumber(parseFloat(symbolPrice));
+      const convartUsdt: BigNumber = availableAmountB.times( symbolPriceB );
+
+      // console.log('availableAmountB = ' + availableAmountB);
+      // console.log('symbolPriceB = ' + symbolPriceB);
+      // console.log('convartUsdt = ' + convartUsdt);
+
+      // 少額通貨は省略
+      if( convartUsdt.gt(1) ) { // more than 1$
+        balanceList.push(balance);
+      }
     }
-    console.log(balanceList);
+    // console.log(balanceList);
 
     if(balanceList !== undefined) {
       return balanceList;
