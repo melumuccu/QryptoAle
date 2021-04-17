@@ -112,55 +112,65 @@ export class CalculateUtil {
   // }
 
 
-  // 現在持っている数量分の購入履歴を返す
+
+  /**
+   * 現在持っている数量分の購入履歴を返す
+   * @param coin ex. XYM
+   * @param binance
+   * @returns 購入履歴
+   */
   async calTradesHaveNow(coin: string, binance: typeof Binance): Promise<{[key: string]: string;}[]> {
+  console.log("file: calculateUtil.ts => line 123 => calTradesHaveNow => coin", coin);
 
-    console.log('coin', coin);
-
-    const returnTrades: {[key: string]: string;}[] = [];
     const symbol = coin + config.fiat;
+    console.log("file: calculateUtil.ts => line 127 => calTradesHaveNow => symbol", symbol);
 
     // 通貨の現在保有数量を取得
     const coinBalance: string = await binanceUtil.getCoinBalance( coin, binance);
+    console.log("file: calculateUtil.ts => line 130 => calTradesHaveNow => coinBalance", coinBalance);
     let coinBalanceB: BigNumber = new BigNumber( coinBalance );
 
     // シンボルの購入履歴を取得
     const symbolBuyTrades = await binanceUtil.getSymbolTradesBuyOrSell(config.buy, symbol, binance);
+    console.log("file: calculateUtil.ts => line 135 => calTradesHaveNow => symbolBuyTrades", symbolBuyTrades);
 
     // 現在の保有数量にあたる購入履歴を抜き出し(最新の購入履歴から抜き出し)
-    for(let i=symbolBuyTrades.length-1; i>0; i--) {
+    const tmpTrades: {[key: string]: string;}[] = [];
+    for(let i=symbolBuyTrades.length-1; i>=0; i--) {
       console.log('------------------');
 
       // 取引量
-      // console.log("file: calculateUtil.ts => line 132 => CalculateUtil => calTradesHaveNow => symbolBuyTrades", symbolBuyTrades[i]);
       const buyQtyB: BigNumber = new BigNumber( symbolBuyTrades[i]['qty'] );
-      // console.log("file: calculateUtil.ts => line 137 => CalculateUtil => calTradesHaveNow => buyQtyB", buyQtyB);
+      console.log("file: calculateUtil.ts => line 144 => calTradesHaveNow => buyQtyB", buyQtyB.toNumber());
 
       // 現在保有数量-購入取引量
       coinBalanceB = coinBalanceB.minus( buyQtyB );
-      console.log('coinBalanceB', coinBalanceB);
+      console.log("file: calculateUtil.ts => line 148 => calTradesHaveNow => coinBalanceB", coinBalanceB.toNumber());
 
-      console.log('------------------');
       if( coinBalanceB.lt(0) ) {
         // マイナスになった(=現在保有数量をここまでの購入取引量が上回った)場合
         // 差の絶対値を購入履歴にセット
         symbolBuyTrades[i]['qty'] = coinBalanceB.abs().toString();
 
-        // リターン変数に配列をプッシュ
-        returnTrades.push( symbolBuyTrades[i] );
+        // 配列をプッシュ
+        tmpTrades.push( symbolBuyTrades[i] );
+        console.log("file: calculateUtil.ts => line 157 => calTradesHaveNow => tmpTrades", tmpTrades);
 
-        // 配列内が新しいものから順に並んでいるので逆順に
-        returnTrades.reverse();
-
+        console.log('------------------for break');
         break;
 
       }else{
-        // リターン変数に配列をプッシュ
-        returnTrades.push( symbolBuyTrades[i] );
+        // 配列をプッシュ
+        tmpTrades.push( symbolBuyTrades[i] );
+        console.log("file: calculateUtil.ts => line 165 => calTradesHaveNow => tmpTrades", tmpTrades);
 
+        console.log('------------------for continue');
         continue;
       }
     } // ------------ for end
+
+    // リターンの配列(配列内が新しいものから順に並んでいるので逆順に)
+    const returnTrades: {[key: string]: string;}[] = tmpTrades.reverse();
     return returnTrades;
   }
 
