@@ -3,16 +3,19 @@
  */
 
 import BigNumber from "bignumber.js";
-
+import {Config} from '../config/config';
 
 const Binance = require('node-binance-api');
+
+//  クラス作成
+const config = new Config();
 
 export class BinanceUtil {
 
   /**
    * 指定ペアの現在価格を取得
    * @param symbol 指定ペア
-   * @param binance 
+   * @param binance
    * @returns 指定ペアの現在価格
    */
   getSymbolPrice(symbol: string, binance: typeof Binance): Promise<string> {
@@ -33,8 +36,8 @@ export class BinanceUtil {
   /**
    * 指定通貨の現在保有数量を取得
    * @param coin 指定通貨
-   * @param binance 
-   * @returns 現在保有数量
+   * @param binance
+   * @returns 現在保有数量(availableな数量に限る)
    */
   getCoinBalance(coin: string, binance: typeof Binance): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -55,7 +58,7 @@ export class BinanceUtil {
    * 指定ペアの取引履歴(売買両方)を取得
    * (全ペア分取得するメソッドは提供されていない)
    * @param symbol 指定ペア
-   * @param binance 
+   * @param binance
    * @returns 取引履歴(売買両方)
    */
   getSymbolTrades(symbol: string, binance: typeof Binance): Promise<{[key: string]: string;}[]> {
@@ -83,7 +86,7 @@ export class BinanceUtil {
    * 指定ペアの取引履歴(売り買い指定)を取得
    * @param isBuy buy=true, sell=false
    * @param symbol 指定ペア
-   * @param binance 
+   * @param binance
    * @returns 取引履歴(売り買い指定)
    */
   async getSymbolTradesBuyOrSell( isBuy: boolean, symbol: string, binance: typeof Binance): Promise<{[key: string]: string;}[]> {
@@ -110,7 +113,7 @@ export class BinanceUtil {
 
   /**
    * 全ペアの現在保有額を取得(onOrderの数量を除く)
-   * @param binance 
+   * @param binance
    * @returns 全ペアの現在保有額
    */
   getAllBalances(binance: typeof Binance): Promise<{[key: string]: string;}> {
@@ -140,8 +143,8 @@ export class BinanceUtil {
 
   /**
    * 現在保有している通貨リストを取得
-   * 少額(USDT換算後、○○USDT以下)のコインは省く
-   * @param binance 
+   * 少額(Fiat通貨に換算後、○○Fiat以下)のコインは省く
+   * @param binance
    * @returns 保有通貨リスト
    */
   async getHasCoinList(binance: typeof Binance): Promise<string[]> {
@@ -152,20 +155,20 @@ export class BinanceUtil {
     // console.log('balanceOfHasCoins = ' );
     // console.log(balanceOfHasCoins);
 
-    for( let balance in balanceOfHasCoins ) {
+    for( let balance in balanceOfHasCoins ) { // [{coin: balance}]
 
       // console.log(balance);
-
-      const symbolPrice: string | void = await this.getSymbolPrice(balance + "USDT", binance)
-                                        .then(result => { 
+      const symbol = balance + config.fiat;
+      const symbolPrice: string | void = await this.getSymbolPrice(symbol, binance)
+                                        .then(result => {
                                           // console.log( result );
-                                          return result 
+                                          return result
                                         }).catch(error => { console.error(error) });
 
       if(typeof symbolPrice === "undefined") {
         console.error(balance + ": symbolPrice === undefined");
       }
-      // USDT換算
+      // fiat換算
       const availableAmountB = new BigNumber(parseFloat(balanceOfHasCoins[balance]['available']));
       const symbolPriceB = new BigNumber(parseFloat(symbolPrice));
       const convartUsdt: BigNumber = availableAmountB.times( symbolPriceB );

@@ -3,8 +3,10 @@
  */
 
 export class Config {
-  symbol = 'SANDUSDT';
-  coin = 'BTC';
-  buy = true;
-  sell = false;
+  fiat: string = 'USDT'
+  coin: string = 'BTC';
+  symbol: string = this.coin + this.fiat;
+  buy: boolean = true;
+  sell: boolean = false;
+
 }

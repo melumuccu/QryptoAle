@@ -2,6 +2,9 @@
   "compilerOptions": {
     "module": "commonjs",
     "target": "es2020",
+    "jsx": "preserve",
+    "outDir": "./build/js/",
+    // "strict": true,
     "sourceMap": true,
     "types": [
       "node"
