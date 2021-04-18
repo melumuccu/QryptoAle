@@ -29,17 +29,17 @@ export class BinanceService {
    * @param coin
    * @param binance
    */
-  async funcCalAvePriceHaveNow(coin: string, binance: typeof Binance): Promise<{[key:string]: string | BigNumber;}>{
+  async funcCalAvePriceHaveNow(coin: string, binance: typeof Binance): Promise<{[key:string]: string | number;}>{
 
     // 現在持っている数量分の購入履歴を取得
     const buyTradesHaveNow = await calculateUtil.calTradesHaveNow(coin, binance);
     // console.log("file: binanceService.ts => line 67 => calAvePriceHaveNow => buyTradesHaveNow", buyTradesHaveNow);
 
     // 購入履歴から平均価格を算出
-    const avePriceHaveNowB: BigNumber = calculateUtil.calAvePrice(buyTradesHaveNow, binance);
+    const avePriceHaveNow: number = calculateUtil.calAvePrice(buyTradesHaveNow, binance);
     // console.log("file: binanceService.ts => line 72 => calAvePriceHaveNow => avePriceHaveNowB", avePriceHaveNowB.toNumber());
 
-    const returnVal: {[key:string]: string | BigNumber;} = {coin: coin, aveBuyPrice: avePriceHaveNowB};
+    const returnVal: {[key:string]: string | number;} = {coin: coin, aveBuyPrice: avePriceHaveNow};
 
     return returnVal;
   }
@@ -50,23 +50,22 @@ export class BinanceService {
    * @param binance
    */
   // オーバーロード
-  async calAvePriceHaveNow(coin: string, binance: typeof Binance): Promise< {[key: string]: string | BigNumber;} >
-  async calAvePriceHaveNow(coin: string[], binance: typeof Binance): Promise< {[key: string]: string | BigNumber;}[]>
+  async calAvePriceHaveNow(coin: string, binance: typeof Binance): Promise< {[key: string]: string | number;} >
+  async calAvePriceHaveNow(coin: string[], binance: typeof Binance): Promise< {[key: string]: string | number;}[]>
 
   // 実装
-  async calAvePriceHaveNow(coin:string | string[], binance: typeof Binance): Promise< {[key: string]: string | BigNumber} | {[key: string]: string | BigNumber;}[] > {
+  async calAvePriceHaveNow(coin:string | string[], binance: typeof Binance): Promise< {[key: string]: string | number} | {[key: string]: string | number;}[] > {
     // console.log("file: binanceService.ts => line 54 => calAvePriceHaveNow => coin", coin);
-    let returnVal: { [key: string]: string | BigNumber } | {[key: string]: string | BigNumber}[] = null;
+    let returnVal: { [key: string]: string | number } | {[key: string]: string | number}[] = null;
 
     // オーバーロードの分岐
     if(typeof coin === 'string') {
 
-      const avePriceHaveNowB: { [key: string]: string | BigNumber } = await this.funcCalAvePriceHaveNow(coin, binance);
+      const avePriceHaveNowB = await this.funcCalAvePriceHaveNow(coin, binance);
 
       returnVal = avePriceHaveNowB;
 
     }else if( Array.isArray(coin) ){
-      const tmpReturnVal: {[key: string]: string | BigNumber} = {};
 
       // 非同期ループ処理
       const tasks = coin.map(coin => this.funcCalAvePriceHaveNow(coin, binance));

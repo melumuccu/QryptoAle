@@ -27,7 +27,7 @@ export class CalculateUtil {
    * @param binance
    * @returns 平均価格
    */
-  calAvePrice(trades: any[], binance: typeof Binance): BigNumber {
+  calAvePrice(trades: any[], binance: typeof Binance): number {
     let sumPriceB = new BigNumber(0);
     let divisionNum = 0;
     // 各取引履歴の取引時の値段を全て足す
@@ -39,7 +39,7 @@ export class CalculateUtil {
     }
     // 取引数で割る
     let avePriceB = sumPriceB.dividedBy(divisionNum);
-    return avePriceB;
+    return avePriceB.toNumber();
   }
 
 
@@ -49,7 +49,7 @@ export class CalculateUtil {
    * @param binance
    * @returns 合計取引数量
    */
-  calSumOfQty(trades: any[], binance: typeof Binance): BigNumber {
+  calSumOfQty(trades: any[], binance: typeof Binance): number {
     let sumQtyB = new BigNumber(0);
     // 各取引履歴の取引量を全て足す
     for(let trade of trades) {
@@ -57,7 +57,7 @@ export class CalculateUtil {
       sumQtyB = sumQtyB.plus(qtyB);
       // console.log('sumQtyB: ' + sumQtyB);
     }
-    return sumQtyB;
+    return sumQtyB.toNumber();
   }
 
   /**

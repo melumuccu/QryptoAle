@@ -68,16 +68,16 @@ const {cyan, red, green, yellow, magenta, reset} = config; // ログの色付け
 // // 現在保有数量から平均取得価額を算出する
 // // [1つのsymbol]
 // (async () => {
-//   const calAvePriceHaveNow: {[key: string]: string | BigNumber;} = await binanceService.calAvePriceHaveNow(coin, binance);
+//   const calAvePriceHaveNow= await binanceService.calAvePriceHaveNow(coin, binance);
 //   for(let key in calAvePriceHaveNow) {
 //     console.log(magenta + key + ": " + calAvePriceHaveNow[key] + reset);
 //   }
 //   const targetCoin = calAvePriceHaveNow['coin'];
 //   if(typeof targetCoin === 'string') {
-//     const nowSymbolPrice: string= await binanceUtil.getSymbolPrice(targetCoin+fiat, binance)
+//     const nowSymbolPrice = await binanceUtil.getSymbolPrice(targetCoin+fiat, binance)
 //     console.log(magenta + "nowSymbolPrice: " + nowSymbolPrice + reset);
 
-//     const balanceOfPayments: BigNumber = new BigNumber( parseFloat(nowSymbolPrice) ).div(calAvePriceHaveNow['aveBuyPrice']).times(100);
+//     const balanceOfPayments = new BigNumber( parseFloat(nowSymbolPrice) ).div(calAvePriceHaveNow['aveBuyPrice']).times(100);
 //     console.log(magenta + "balanceOfPayments: " + balanceOfPayments + reset);
 //   }
 // })();
@@ -91,7 +91,7 @@ const {cyan, red, green, yellow, magenta, reset} = config; // ログの色付け
   const hasCoinList: string[] = await binanceUtil.getHasCoinList(binance);
   // console.log("file: app.ts => line 82 => hasCoinList", hasCoinList);
 
-  const avePriceHasCoins: {[key: string]: string | BigNumber}[] = await binanceService.calAvePriceHaveNow(hasCoinList, binance);
+  const avePriceHasCoins = await binanceService.calAvePriceHaveNow(hasCoinList, binance);
   const result = [];
   for(let avePrice of avePriceHasCoins) {
     const {coin: propCoin, aveBuyPrice: propAveBuyPrice} = avePrice;
@@ -101,7 +101,7 @@ const {cyan, red, green, yellow, magenta, reset} = config; // ログの色付け
       const nowSymbolPrice: string = await binanceUtil.getSymbolPrice(String(propCoin)+fiat, binance)
       // 平均取得価額は現在価額から見て収支は何%かを算出
       const balanceOfPayments: BigNumber = new BigNumber( parseFloat(nowSymbolPrice) ).div( new BigNumber(propAveBuyPrice) ).times(100);
-      // 結果
+      // 結果をプッシュ
       result.push({
           coin: String(propCoin)
         , aveBuyPrice: String(propAveBuyPrice)
@@ -113,5 +113,6 @@ const {cyan, red, green, yellow, magenta, reset} = config; // ログの色付け
       console.error(red + "【propCoin != null && propAveBuyPrice != null】 => false" + reset);
     }
   }
+  // 結果の出力
   console.table(result);
 })();
