@@ -2,9 +2,13 @@ import {login} from './config/login';
 import {Config} from './config/config';
 import {BinanceUtil} from './util/binanceUtil';
 import {CalculateUtil} from './util/calculateUtil';
-import {BinanceService} from './service/binanceService'
+import {BinanceService} from './service/binanceService';
 
 import BigNumber from "bignumber.js";
+
+// Binance ログイン
+const Binance = require('node-binance-api');
+const binance = new Binance().options(login);
 
 //  クラス作成
 const config = new Config();
@@ -12,15 +16,11 @@ const binanceUtil = new BinanceUtil();
 const calculateUtil = new CalculateUtil();
 const binanceService = new BinanceService();
 
-// 各種コンフィグ
-const symbol = config.symbol;
-const coin = config.coin;
-const buy = config.buy;
-const sell = config.sell;
+// 各コンフィグ
+const {fiat, coin, symbol, buy, sell} = config;
+const {cyan, red, green, yellow, magenta, reset} = config; // ログの色付け用
 
-// Binance ログイン
-const Binance = require('node-binance-api');
-const binance = new Binance().options(login);
+
 
 
 
@@ -42,7 +42,7 @@ const binance = new Binance().options(login);
 //   console.log(`getSymbolTrades: ${symbol} => `);
 //   console.log(result);
 // }).catch(error => {
-//   console.error(error);
+//   console.error(red + error + reset);
 // });
 
 // binanceUtil.getAllBalances(binance)
@@ -70,15 +70,15 @@ const binance = new Binance().options(login);
 // (async () => {
 //   const calAvePriceHaveNow: {[key: string]: string | BigNumber;} = await binanceService.calAvePriceHaveNow(coin, binance);
 //   for(let key in calAvePriceHaveNow) {
-//     console.log(config.magenta + key + ": " + calAvePriceHaveNow[key] + config.reset);
+//     console.log(magenta + key + ": " + calAvePriceHaveNow[key] + reset);
 //   }
 //   const targetCoin = calAvePriceHaveNow['coin'];
 //   if(typeof targetCoin === 'string') {
-//     const nowSymbolPrice: string= await binanceUtil.getSymbolPrice(targetCoin+config.fiat, binance)
-//     console.log(config.magenta + "nowSymbolPrice: " + nowSymbolPrice + config.reset);
+//     const nowSymbolPrice: string= await binanceUtil.getSymbolPrice(targetCoin+fiat, binance)
+//     console.log(magenta + "nowSymbolPrice: " + nowSymbolPrice + reset);
 
 //     const balanceOfPayments: BigNumber = new BigNumber( parseFloat(nowSymbolPrice) ).div(calAvePriceHaveNow['aveBuyPrice']).times(100);
-//     console.log(config.magenta + "balanceOfPayments: " + balanceOfPayments + config.reset);
+//     console.log(magenta + "balanceOfPayments: " + balanceOfPayments + reset);
 //   }
 // })();
 
@@ -91,21 +91,21 @@ const binance = new Binance().options(login);
   // console.log("file: app.ts => line 82 => hasCoinList", hasCoinList);
 
   const avePriceHasCoins: {[key: string]: string | BigNumber}[] = await binanceService.calAvePriceHaveNow(hasCoinList, binance);
-  console.log(config.magenta + "-------------------" + config.reset);
+  console.log(magenta + "-------------------" + reset);
   for(let avePrice of avePriceHasCoins) {
     for(let key in avePrice) {
-      console.log(config.magenta + key + ": " + avePrice[key] + config.reset);
+      console.log(magenta + key + ": " + avePrice[key] + reset);
     }
 
     const coin = avePrice['coin'];
     if(typeof coin === 'string') {
-      const nowSymbolPrice: string= await binanceUtil.getSymbolPrice(coin+config.fiat, binance)
-      console.log(config.magenta + "nowSymbolPrice: " + nowSymbolPrice + config.reset);
+      const nowSymbolPrice: string= await binanceUtil.getSymbolPrice(coin+fiat, binance)
+      console.log(magenta + "nowSymbolPrice: " + nowSymbolPrice + reset);
 
       const balanceOfPayments: BigNumber = new BigNumber( parseFloat(nowSymbolPrice) ).div(avePrice['aveBuyPrice']).times(100);
-      console.log(config.magenta + "balanceOfPayments: " + balanceOfPayments + config.reset);
+      console.log(magenta + "balanceOfPayments: " + balanceOfPayments + reset);
     }
-    console.log(config.magenta + "-------------------" + config.reset);
+    console.log(magenta + "-------------------" + reset);
   }
 })();
 

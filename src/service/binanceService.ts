@@ -7,13 +7,18 @@ import {Config} from '../config/config';
 import {BinanceUtil} from '../util/binanceUtil';
 import {CalculateUtil} from '../util/calculateUtil';
 
+const Binance = require('node-binance-api');
+
 //  クラス作成
 const config = new Config();
 const binanceUtil = new BinanceUtil();
 const calculateUtil = new CalculateUtil();
 
-// Binance ログイン
-const Binance = require('node-binance-api');
+// 各コンフィグ
+const {fiat, coin, symbol, buy, sell} = config;
+const {cyan, red, green, yellow, magenta, reset} = config // ログの色付け用
+
+
 
 // --------------------------------
 

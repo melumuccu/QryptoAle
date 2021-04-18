@@ -10,6 +10,11 @@ const Binance = require('node-binance-api');
 //  クラス作成
 const config = new Config();
 
+// 各コンフィグ
+const {fiat, coin, symbol, buy, sell} = config;
+const {cyan, red, green, yellow, magenta, reset} = config // ログの色付け用
+
+
 export class BinanceUtil {
 
   /**
@@ -113,7 +118,6 @@ export class BinanceUtil {
    * @returns 全ペアの現在保有額
    */
   getAllBalances(binance: typeof Binance): Promise<{[key: string]: string;}> {
-
     return new Promise((resolve, reject) => {
 
       let balanceOfHasCoins: {[key: string]: string;} = {};
@@ -123,16 +127,16 @@ export class BinanceUtil {
           for( let balance in balances ) {
             if( parseFloat(balances[balance].available) !== 0 ) {
               balanceOfHasCoins[balance] = balances[balance];
+              // console.log("file: binanceUtil.ts => line 130 => binance.balance => balanceOfHasCoins", balanceOfHasCoins);
             }
           }
         }
-        if(balanceOfHasCoins !== undefined) {
+        if(balanceOfHasCoins != null) {
           return resolve(balanceOfHasCoins);
         }else{
           return reject('エラー！');
         }
       });
-
     });
   }
 
@@ -150,14 +154,14 @@ export class BinanceUtil {
 
     for( let balance in balanceOfHasCoins ) {
 
-      const symbol = balance + config.fiat;
+      const symbol = balance + fiat;
       const symbolPrice: string | void = await this.getSymbolPrice(symbol, binance)
                                         .then(result => {
                                           return result
                                         }).catch(error => { console.error(error) });
 
       if(typeof symbolPrice === "undefined") {
-        console.error(config.red + balance + " file: binanceUtil.ts => line 169 => getHasCoinList => symbolPrice", symbolPrice + config.reset);
+        console.error(red + balance + " file: binanceUtil.ts => line 169 => getHasCoinList => symbolPrice", symbolPrice + reset);
       }
       // fiat換算
       const availableAmountB = new BigNumber(parseFloat(balanceOfHasCoins[balance]['available']));

@@ -12,6 +12,10 @@ const Binance = require('node-binance-api');
 const config = new Config();
 const binanceUtil = new BinanceUtil();
 
+// 各コンフィグ
+const {fiat, coin, symbol, buy, sell} = config;
+const {cyan, red, green, yellow, magenta, reset} = config // ログの色付け用
+
 
 // ------------------------------------------
 
@@ -65,7 +69,7 @@ export class CalculateUtil {
   async calTradesHaveNow(coin: string, binance: typeof Binance): Promise<{[key: string]: string;}[]> {
   // console.log("file: calculateUtil.ts => line 123 => calTradesHaveNow => coin", coin);
 
-    const symbol = coin + config.fiat;
+    const symbol = coin + fiat;
     // console.log("file: calculateUtil.ts => line 127 => calTradesHaveNow => symbol", symbol);
 
     // 通貨の現在保有数量を取得
@@ -74,7 +78,7 @@ export class CalculateUtil {
     let coinBalanceB: BigNumber = new BigNumber( coinBalance );
 
     // シンボルの購入履歴を取得
-    const symbolBuyTrades = await binanceUtil.getSymbolTradesBuyOrSell(config.buy, symbol, binance);
+    const symbolBuyTrades = await binanceUtil.getSymbolTradesBuyOrSell(buy, symbol, binance);
     // console.log("file: calculateUtil.ts => line 135 => calTradesHaveNow => symbolBuyTrades", symbolBuyTrades);
 
     // 現在の保有数量にあたる購入履歴を抜き出し(最新の購入履歴から抜き出し)
