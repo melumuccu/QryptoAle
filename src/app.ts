@@ -84,28 +84,34 @@ const {cyan, red, green, yellow, magenta, reset} = config; // ログの色付け
 
 
 
-// 現在保有数量から平均取得価額を算出する
+// ・現在保有数量から平均取得価額を算出する
+// ・平均取得価額は現在取引価額から見て収支何%かを算出する
 // [現在保有しているsymbol全て]
 (async () => {
   const hasCoinList: string[] = await binanceUtil.getHasCoinList(binance);
   // console.log("file: app.ts => line 82 => hasCoinList", hasCoinList);
 
   const avePriceHasCoins: {[key: string]: string | BigNumber}[] = await binanceService.calAvePriceHaveNow(hasCoinList, binance);
-  console.log(magenta + "-------------------" + reset);
+  const result = [];
   for(let avePrice of avePriceHasCoins) {
-    for(let key in avePrice) {
-      console.log(magenta + key + ": " + avePrice[key] + reset);
-    }
+    const {coin: propCoin, aveBuyPrice: propAveBuyPrice} = avePrice;
 
-    const coin = avePrice['coin'];
-    if(typeof coin === 'string') {
-      const nowSymbolPrice: string= await binanceUtil.getSymbolPrice(coin+fiat, binance)
-      console.log(magenta + "nowSymbolPrice: " + nowSymbolPrice + reset);
-
-      const balanceOfPayments: BigNumber = new BigNumber( parseFloat(nowSymbolPrice) ).div(avePrice['aveBuyPrice']).times(100);
-      console.log(magenta + "balanceOfPayments: " + balanceOfPayments + reset);
+    if(propCoin != null && propAveBuyPrice != null) {
+      // 現在価格を取得
+      const nowSymbolPrice: string = await binanceUtil.getSymbolPrice(String(propCoin)+fiat, binance)
+      // 平均取得価額は現在価額から見て収支は何%かを算出
+      const balanceOfPayments: BigNumber = new BigNumber( parseFloat(nowSymbolPrice) ).div( new BigNumber(propAveBuyPrice) ).times(100);
+      // 結果
+      result.push({
+          coin: String(propCoin)
+        , aveBuyPrice: String(propAveBuyPrice)
+        , nowSymbolPrice: String(nowSymbolPrice)
+        , balanceOfPayments: String(balanceOfPayments)
+      });
+    }else{
+      console.error(red + "file: app.ts => line 110 " + reset);
+      console.error(red + "【propCoin != null && propAveBuyPrice != null】 => false" + reset);
     }
-    console.log(magenta + "-------------------" + reset);
   }
+  console.table(result);
 })();
-
