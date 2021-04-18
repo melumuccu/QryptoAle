@@ -29,13 +29,13 @@ export class BinanceService {
 
     // 現在持っている数量分の購入履歴を取得
     const buyTradesHaveNow = await calculateUtil.calTradesHaveNow(coin, binance);
-    console.log("file: binanceService.ts => line 67 => calAvePriceHaveNow => buyTradesHaveNow", buyTradesHaveNow);
+    // console.log("file: binanceService.ts => line 67 => calAvePriceHaveNow => buyTradesHaveNow", buyTradesHaveNow);
 
     // 購入履歴から平均価格を算出
     const avePriceHaveNowB: BigNumber = calculateUtil.calAvePrice(buyTradesHaveNow, binance);
-    console.log("file: binanceService.ts => line 72 => calAvePriceHaveNow => avePriceHaveNowB", avePriceHaveNowB.toNumber());
+    // console.log("file: binanceService.ts => line 72 => calAvePriceHaveNow => avePriceHaveNowB", avePriceHaveNowB.toNumber());
 
-    const returnVal: {[key:string]: string | BigNumber;} = {coin: coin, price: avePriceHaveNowB};
+    const returnVal: {[key:string]: string | BigNumber;} = {coin: coin, aveBuyPrice: avePriceHaveNowB};
 
     return returnVal;
   }
@@ -51,7 +51,7 @@ export class BinanceService {
 
   // 実装
   async calAvePriceHaveNow(coin:string | string[], binance: typeof Binance): Promise< {[key: string]: string | BigNumber} | {[key: string]: string | BigNumber;}[] > {
-    console.log("file: binanceService.ts => line 54 => calAvePriceHaveNow => coin", coin);
+    // console.log("file: binanceService.ts => line 54 => calAvePriceHaveNow => coin", coin);
     let returnVal: { [key: string]: string | BigNumber } | {[key: string]: string | BigNumber}[] = null;
 
     // オーバーロードの分岐
@@ -66,10 +66,10 @@ export class BinanceService {
 
       // 非同期ループ処理
       const tasks = coin.map(coin => this.funcCalAvePriceHaveNow(coin, binance));
-      console.log("file: binanceService.ts => line 55 => calAvePriceHaveNow => tasks", tasks);
+      // console.log("file: binanceService.ts => line 55 => calAvePriceHaveNow => tasks", tasks);
 
       const solvedTasks = await Promise.all(tasks);
-      console.log("file: binanceService.ts => line 72 => calAvePriceHaveNow => solvedTasks", solvedTasks);
+      // console.log("file: binanceService.ts => line 72 => calAvePriceHaveNow => solvedTasks", solvedTasks);
 
       returnVal = solvedTasks;
 

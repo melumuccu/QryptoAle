@@ -82,13 +82,22 @@ const binance = new Binance().options(login);
 // [現在保有しているsymbol全て]
 (async () => {
   const hasCoinList: string[] = await binanceUtil.getHasCoinList(binance);
-  console.log("file: app.ts => line 82 => hasCoinList", hasCoinList);
+  // console.log("file: app.ts => line 82 => hasCoinList", hasCoinList);
 
   const avePriceHasCoins: {[key: string]: string | BigNumber}[] = await binanceService.calAvePriceHaveNow(hasCoinList, binance);
+  console.log(config.magenta + "-------------------" + config.reset);
   for(let avePrice of avePriceHasCoins) {
-    console.log(config.magenta + "-------------------" + config.reset);
     for(let key in avePrice) {
       console.log(config.magenta + key + ": " + avePrice[key] + config.reset);
+    }
+
+    const coin = avePrice['coin'];
+    if(typeof coin === 'string') {
+      const nowSymbolPrice: string= await binanceUtil.getSymbolPrice(coin+config.fiat, binance)
+      console.log(config.magenta + "nowSymbolPrice: " + nowSymbolPrice + config.reset);
+
+      const balanceOfPayments: BigNumber = new BigNumber( parseFloat(nowSymbolPrice) ).div(avePrice['aveBuyPrice']).times(100);
+      console.log(config.magenta + "balanceOfPayments: " + balanceOfPayments + config.reset);
     }
     console.log(config.magenta + "-------------------" + config.reset);
   }
