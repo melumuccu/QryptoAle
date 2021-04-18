@@ -56,7 +56,7 @@ const binance = new Binance().options(login);
 //   console.log(`getHasCoinList: ${result}`);
 // });
 
-// binanceUtil.getSymbolTradesBuyOrSell( isBuy, symbol, binance )
+// binanceUtil.getSymbolTradesBuyOrSell( buy, symbol, binance )
 // .then(result => {
 //   console.log(`getSymbolTradesBuy: `);
 //   console.log(result);
@@ -69,11 +69,17 @@ const binance = new Binance().options(login);
 // // [1つのsymbol]
 // (async () => {
 //   const calAvePriceHaveNow: {[key: string]: string | BigNumber;} = await binanceService.calAvePriceHaveNow(coin, binance);
-//   console.log(config.magenta + "-------------------" + config.reset);
 //   for(let key in calAvePriceHaveNow) {
 //     console.log(config.magenta + key + ": " + calAvePriceHaveNow[key] + config.reset);
 //   }
-//   console.log(config.magenta + "-------------------" + config.reset);
+//   const targetCoin = calAvePriceHaveNow['coin'];
+//   if(typeof targetCoin === 'string') {
+//     const nowSymbolPrice: string= await binanceUtil.getSymbolPrice(targetCoin+config.fiat, binance)
+//     console.log(config.magenta + "nowSymbolPrice: " + nowSymbolPrice + config.reset);
+
+//     const balanceOfPayments: BigNumber = new BigNumber( parseFloat(nowSymbolPrice) ).div(calAvePriceHaveNow['aveBuyPrice']).times(100);
+//     console.log(config.magenta + "balanceOfPayments: " + balanceOfPayments + config.reset);
+//   }
 // })();
 
 

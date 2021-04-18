@@ -3,7 +3,6 @@
  */
 
 import BigNumber from 'bignumber.js';
-import { table } from 'node:console';
 import {Config} from '../config/config';
 import {BinanceUtil} from '../util/binanceUtil';
 import {CalculateUtil} from '../util/calculateUtil';
@@ -15,8 +14,8 @@ const calculateUtil = new CalculateUtil();
 
 // Binance ログイン
 const Binance = require('node-binance-api');
-// const binance = new Binance().options(login);
 
+// --------------------------------
 
 export class BinanceService {
 

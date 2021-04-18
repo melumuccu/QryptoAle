@@ -44,7 +44,6 @@ export class BinanceUtil {
 
       binance.balance(function(error, balances) {
         if( typeof balances[coin] !== undefined ) {
-          // console.log(coin, " balance: ", balances[coin].available);
           return resolve(balances[coin].available);
         }else{
           return reject('エラー!');
@@ -67,12 +66,10 @@ export class BinanceUtil {
       binance.trades(symbol, (error, trades:{[key: string]: string;}[], symbol: string) => {
         // UnixTime(13桁:ミリ秒)を変換
         for( let key in trades ) {
-          // console.log(trades[key]['time']);
           let dateTime = new Date(trades[key]['time']);
           trades[key]['time'] = `${dateTime.toLocaleDateString('ja-JP')} ${dateTime.toLocaleTimeString('ja-JP')}`;
         }
         if( typeof trades !== undefined ) {
-          // console.log(symbol+" trade history", trades);
           return resolve(trades);
         }else{
           return reject('エラー!');
@@ -93,7 +90,6 @@ export class BinanceUtil {
     const allTrades: any = await this.getSymbolTrades(symbol, binance)
                                   .then(result => { return result; })
                                   .catch(error => { console.error(error); });
-    // console.log(allTrades);
 
     let buyTrades: {[key: string]: string;}[] = [];
     for(let trade of allTrades) {
@@ -129,7 +125,6 @@ export class BinanceUtil {
               balanceOfHasCoins[balance] = balances[balance];
             }
           }
-          // console.log("balance: ", balanceOfHasCoins);
         }
         if(balanceOfHasCoins !== undefined) {
           return resolve(balanceOfHasCoins);
@@ -152,16 +147,12 @@ export class BinanceUtil {
     const balanceOfHasCoins: any = await this.getAllBalances(binance)
                                             .then(result => {return result})
                                             .catch(error => console.error(error));
-    // console.log('balanceOfHasCoins = ' );
-    // console.log(balanceOfHasCoins);
 
-    for( let balance in balanceOfHasCoins ) { // [{coin: balance}]
+    for( let balance in balanceOfHasCoins ) {
 
-      // console.log(balance);
       const symbol = balance + config.fiat;
       const symbolPrice: string | void = await this.getSymbolPrice(symbol, binance)
                                         .then(result => {
-                                          // console.log( result );
                                           return result
                                         }).catch(error => { console.error(error) });
 
@@ -173,16 +164,11 @@ export class BinanceUtil {
       const symbolPriceB = new BigNumber(parseFloat(symbolPrice));
       const convartUsdt: BigNumber = availableAmountB.times( symbolPriceB );
 
-      // console.log('availableAmountB = ' + availableAmountB);
-      // console.log('symbolPriceB = ' + symbolPriceB);
-      // console.log('convartUsdt = ' + convartUsdt);
-
       // 少額通貨は省略
       if( convartUsdt.gt(1) ) { // more than 1$
         balanceList.push(balance);
       }
     }
-    // console.log(balanceList);
 
     if(balanceList !== undefined) {
       return balanceList;

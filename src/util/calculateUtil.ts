@@ -2,7 +2,7 @@
  * 主に計算などの処理をまとめるクラス
  */
 
-import BigNumber from 'bignumber.js' // 少数の計算を正確に行うためのライブラリ
+import BigNumber from 'bignumber.js'
 import {BinanceUtil} from '../util/binanceUtil';
 import {Config} from '../config/config';
 
@@ -31,11 +31,8 @@ export class CalculateUtil {
       const priceB = new BigNumber(parseFloat(trade['price']));
       sumPriceB = sumPriceB.plus(priceB);
       divisionNum++;
-      // console.log('--------' + divisionNum + '回目の足し算' + '--------');
-      // console.log('sumPrice: ' + sumPrice);
-      // console.log('divisionNum: ' + divisionNum);
+
     }
-    // console.log('-----------------------------');
     // 取引数で割る
     let avePriceB = sumPriceB.dividedBy(divisionNum);
     return avePriceB;
@@ -58,60 +55,6 @@ export class CalculateUtil {
     }
     return sumQtyB;
   }
-
-
-  // /**
-  //  * 現在持っている数量分の購入履歴を返す
-  //  * (売却した数量分、古い購入履歴と相殺）
-  //  * @param buyTrades 購入履歴
-  //  * @param allSellQty 全売却数量
-  //  * @param binance
-  //  * @returns 売却数量分が差し引かれた後の購入履歴
-  //  */
-  // calTradesHaveNow(buyTrades: any[], allSellQty: BigNumber, binance: typeof Binance): {[key: string]: string;}[] {
-
-  //   // console.log('buyTrades = ');
-  //   // console.log(buyTrades);
-  //   // console.log('buyTrades.length = ' + buyTrades.length);
-
-  //   for(let i=0; i<buyTrades.length; i++) {
-  //     // console.log('---------------------------------------');
-  //     const buyQtyB = new BigNumber(parseFloat(buyTrades[i]['qty']));
-  //     // console.log('buyQtyB = ' + buyQtyB);
-  //     // console.log('-----------');
-  //     // console.log('allSellQty(before minus buyQtyB) = ' + allSellQty.toNumber());
-  //     allSellQty = allSellQty.minus(buyQtyB);
-  //     // console.log('allSellQty(after minus buyQtyB) = ' + allSellQty.toNumber());
-  //     // console.log('---------------------------------------');
-  //     // 全売却数量から購入数を差し引いた結果
-  //     if(allSellQty.lt(0)) { // sellQty < 0
-  //       // console.log('allSellQty = ' + allSellQty.toNumber());
-  //       buyTrades[i]['qty'] = Math.abs(allSellQty.toNumber()).toString();
-  //       // console.log('Math.abs(allSellQty.parseFloat).toString = ' + Math.abs(allSellQty.toNumber()).toString());
-  //       const splicedTrade: any[] = buyTrades.splice(0, i);
-  //       // console.log('splicedTrade = ');
-  //       // console.log(splicedTrade);
-  //       break
-  //     }else{
-  //       delete buyTrades[i];
-  //       // console.log('buyTrades.length = ' + buyTrades.length);
-  //       continue;
-  //     }
-  //   }
-
-  //   let buyTradesHaveNow: {[key: string]: string;}[] = buyTrades;
-
-  //   // ToDo 外部送金料を考慮しないといけない
-  //   // (暫定的処理) XRPのように全ての購入数量を差し引いても売却数量が多い場合
-  //   // (=外部からの送金などで辻褄が合わない場合)
-  //   if(allSellQty.gt(0)){
-  //     buyTradesHaveNow = [];
-  //   }
-
-  //   return buyTradesHaveNow;
-  // }
-
-
 
   /**
    * 現在持っている数量分の購入履歴を返す
