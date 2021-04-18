@@ -20,7 +20,9 @@ const binanceService = new BinanceService();
 const {fiat, coin, symbol, buy, sell} = config;
 const {cyan, red, green, yellow, magenta, reset} = config; // ログの色付け用
 
-
+// プリミティブの判定
+const isString = (arg: any): arg is string  => typeof arg === "string";
+const isNumber = (arg: any): arg is number  => typeof arg === "number";
 
 
 
@@ -96,17 +98,21 @@ const {cyan, red, green, yellow, magenta, reset} = config; // ログの色付け
   for(let avePrice of avePriceHasCoins) {
     const {coin: propCoin, aveBuyPrice: propAveBuyPrice} = avePrice;
 
-    if(propCoin != null && propAveBuyPrice != null) {
+    if( isString(propCoin) && isNumber(propAveBuyPrice) ) {
+      // 平均購入価額を丸める(四捨五入)
+      const propAveBuyPriceDp = new BigNumber( propAveBuyPrice ).dp(6); // 6桁精度
       // 現在価格を取得
-      const nowSymbolPrice: string = await binanceUtil.getSymbolPrice(String(propCoin)+fiat, binance)
+      const nowSymbolPrice: string = await binanceUtil.getSymbolPrice(propCoin+fiat, binance)
+      const nowSymbolPriceDp = new BigNumber( parseFloat(nowSymbolPrice) ).dp(6);
       // 平均取得価額は現在価額から見て収支は何%かを算出
       const balanceOfPayments: BigNumber = new BigNumber( parseFloat(nowSymbolPrice) ).div( new BigNumber(propAveBuyPrice) ).times(100);
+      const balanceOfPaymentsDp = balanceOfPayments.dp(1);
       // 結果をプッシュ
       result.push({
-          coin: String(propCoin)
-        , aveBuyPrice: String(propAveBuyPrice)
-        , nowSymbolPrice: String(nowSymbolPrice)
-        , balanceOfPayments: String(balanceOfPayments)
+          coin: propCoin
+        , aveBuyPrice: propAveBuyPriceDp.toNumber()
+        , nowSymbolPrice: nowSymbolPriceDp.toNumber()
+        , balanceOfPayments: balanceOfPaymentsDp.toNumber()
       });
     }else{
       console.error(red + "file: app.ts => line 110 " + reset);
