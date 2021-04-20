@@ -119,6 +119,15 @@ const isNumber = (arg: any): arg is number  => typeof arg === "number";
       console.error(red + "【propCoin != null && propAveBuyPrice != null】 => false" + reset);
     }
   }
+  // 収支率で降順ソート
+  result.sort((a, b) => {
+    if (a.balanceOfPayments > b.balanceOfPayments) {
+      return -1;
+    } else {
+      return 1;
+    }
+  });
+
   // 結果の出力
   console.table(result);
 })();
