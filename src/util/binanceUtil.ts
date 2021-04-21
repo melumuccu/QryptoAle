@@ -113,11 +113,12 @@ export class BinanceUtil {
   }
 
   /**
-   * 全ペアの現在保有額を取得(onOrderの数量を除く)
+   * 全ペアの現在保有額を取得
+   * @param includeOnOrder 注文中の数量を含むか
    * @param binance
    * @returns 全ペアの現在保有額
    */
-  getAllBalances(binance: typeof Binance): Promise<{[key: string]: string;}> {
+  getAllBalances(includeOnOrder: boolean, binance: typeof Binance): Promise<{[key: string]: string;}> {
     return new Promise((resolve, reject) => {
 
       let balanceOfHasCoins: {[key: string]: string;} = {};
@@ -125,7 +126,20 @@ export class BinanceUtil {
         if( typeof balances !== undefined ) {
           // 保有している通貨のみに限定
           for( let balance in balances ) {
-            if( parseFloat(balances[balance].available) !== 0 ) {
+
+
+            // 注文中の数量を含むか否かを判定
+            const availableB = new BigNumber( parseFloat(balances[balance].available) );
+            const onOrderB = new BigNumber( parseFloat(balances[balance].onOrder) );
+
+            let tmpBalanceB;
+            if(includeOnOrder) {
+              tmpBalanceB =  availableB.plus(onOrderB);
+            }else{
+              tmpBalanceB =  availableB;
+            }
+
+            if( tmpBalanceB.toNumber() !== 0 ) {
               balanceOfHasCoins[balance] = balances[balance];
               // console.log("file: binanceUtil.ts => line 130 => binance.balance => balanceOfHasCoins", balanceOfHasCoins);
             }
@@ -143,12 +157,13 @@ export class BinanceUtil {
   /**
    * 現在保有している通貨リストを取得
    * 少額(Fiat通貨に換算後、○○Fiat以下)のコインは省く
+   * @param includeOnOrder 注文中の数量を含むか
    * @param binance
    * @returns 保有通貨リスト
    */
-  async getHasCoinList(binance: typeof Binance): Promise<string[]> {
+  async getHasCoinList(includeOnOrder: boolean, binance: typeof Binance): Promise<string[]> {
     let balanceList: string[] = [];
-    const balanceOfHasCoins: any = await this.getAllBalances(binance)
+    const balanceOfHasCoins: any = await this.getAllBalances(includeOnOrder, binance)
                                             .then(result => {return result})
                                             .catch(error => console.error(error));
 
@@ -163,10 +178,21 @@ export class BinanceUtil {
       if(typeof symbolPrice === "undefined") {
         console.error(red + balance + " file: binanceUtil.ts => line 169 => getHasCoinList => symbolPrice", symbolPrice + reset);
       }
-      // fiat換算
-      const availableAmountB = new BigNumber(parseFloat(balanceOfHasCoins[balance]['available']));
       const symbolPriceB = new BigNumber(parseFloat(symbolPrice));
-      const convartUsdt: BigNumber = availableAmountB.times( symbolPriceB );
+
+      const availableAmountB = new BigNumber(parseFloat(balanceOfHasCoins[balance]['available']));
+      const onOrderB = new BigNumber(parseFloat(balanceOfHasCoins[balance]['onOrder']));
+      let amountB;
+
+      // onOrderの数量を含めるか否か
+      if(includeOnOrder) {
+        amountB = availableAmountB.plus(onOrderB);
+      }else{
+        amountB = availableAmountB;
+      }
+
+      // fiat換算
+      const convartUsdt: BigNumber = amountB.times( symbolPriceB );
 
       // 少額通貨は省略
       if( convartUsdt.gt(1) ) { // more than 1$

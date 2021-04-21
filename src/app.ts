@@ -47,7 +47,7 @@ const isNumber = (arg: any): arg is number  => typeof arg === "number";
 //   console.error(red + error + reset);
 // });
 
-// binanceUtil.getAllBalances(binance)
+// binanceUtil.getAllBalances(true, binance)
 // .then(result => {
 //   console.log('getAllBalances: ');
 //   console.log(result);
@@ -90,7 +90,7 @@ const isNumber = (arg: any): arg is number  => typeof arg === "number";
 // ・平均取得価額は現在取引価額から見て収支何%かを算出する
 // [現在保有しているsymbol全て]
 (async () => {
-  const hasCoinList: string[] = await binanceUtil.getHasCoinList(binance);
+  const hasCoinList: string[] = await binanceUtil.getHasCoinList(true, binance);
   // console.log("file: app.ts => line 82 => hasCoinList", hasCoinList);
 
   const avePriceHasCoins = await binanceService.calAvePriceHaveNow(hasCoinList, binance);
@@ -120,14 +120,21 @@ const isNumber = (arg: any): arg is number  => typeof arg === "number";
     }
   }
   // 収支率で降順ソート
-  result.sort((a, b) => {
-    if (a.balanceOfPayments > b.balanceOfPayments) {
-      return -1;
-    } else {
-      return 1;
-    }
-  });
+  // result.sort((a, b) => {
+  //   if (a.balanceOfPayments > b.balanceOfPayments) {
+  //     return -1;
+  //   } else {
+  //     return 1;
+  //   }
+  // });
 
   // 結果の出力
   console.table(result);
 })();
+
+// binance.candlesticks("BNBBTC", "5m", (error, ticks, symbol) => {
+//   console.info("candlesticks()", ticks);
+//   let last_tick = ticks[ticks.length - 1];
+//   let [time, open, high, low, close, volume, closeTime, assetVolume, trades, buyBaseVolume, buyAssetVolume, ignored] = last_tick;
+//   console.info(symbol+" last close: "+close);
+// }, {limit: 500, endTime: 1514764800000});
