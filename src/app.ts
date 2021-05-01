@@ -106,14 +106,20 @@ const show = function() {
         const nowSymbolPrice: string = await binanceUtil.getSymbolPrice(propCoin+fiat, binance)
         const nowSymbolPriceDp = new BigNumber( parseFloat(nowSymbolPrice) ).dp(6);
         // 平均取得価額は現在価額から見て収支は何%かを算出
-        const balanceOfPayments: BigNumber = new BigNumber( parseFloat(nowSymbolPrice) ).div( new BigNumber(propAveBuyPrice) ).times(100);
+        const balanceOfPayments = new BigNumber( parseFloat(nowSymbolPrice) ).div( new BigNumber(propAveBuyPrice) ).times(100);
         const balanceOfPaymentsDp = balanceOfPayments.dp(1);
+        let balanceOfPaymentsStrZeroPadding = balanceOfPaymentsDp.toString();
+        if(balanceOfPaymentsStrZeroPadding.substr(-2, 1) != '.') {
+          // 0で埋める
+          balanceOfPaymentsStrZeroPadding = balanceOfPaymentsStrZeroPadding + '.0';
+        }
+
         // 結果をプッシュ
         result.push({
             coin: propCoin
           , aveBuyPrice: propAveBuyPriceDp.toNumber()
           , nowSymbolPrice: nowSymbolPriceDp.toNumber()
-          , balanceOfPayments: balanceOfPaymentsDp.toNumber()
+          , balanceOfPayments: balanceOfPaymentsStrZeroPadding
         });
       }else{
         console.error(red + "file: app.ts => line 110 " + reset);
