@@ -6,6 +6,7 @@ import BigNumber from 'bignumber.js';
 import {Config} from '../config/config';
 import {BinanceUtil} from '../util/binanceUtil';
 import {CalculateUtil} from '../util/calculateUtil';
+import {OtherUtil} from '../util/otherUtil';
 
 const Binance = require('node-binance-api');
 
@@ -13,11 +14,11 @@ const Binance = require('node-binance-api');
 const config = new Config();
 const binanceUtil = new BinanceUtil();
 const calculateUtil = new CalculateUtil();
+const otherUtil = new OtherUtil();
 
 // 各コンフィグ
 const {fiat, coin, symbol, buy, sell} = config;
 const {cyan, red, green, yellow, magenta, reset} = config // ログの色付け用
-
 
 
 // --------------------------------
@@ -80,6 +81,76 @@ export class BinanceService {
     return returnVal;
   }
 
+  /**
+   * 1つのsymbolについて
+   * 現在保有数量から平均取得価額を算出する
+   * @param binance
+   */
+  async showAvePriceHaveNow(binance: typeof Binance) {
+    const calAvePriceHaveNow= await this.calAvePriceHaveNow(coin, binance);
+    for(let key in calAvePriceHaveNow) {
+      console.log(magenta + key + ": " + calAvePriceHaveNow[key] + reset);
+    }
+    const targetCoin = calAvePriceHaveNow['coin'];
+    if(typeof targetCoin === 'string') {
+      const nowSymbolPrice = await binanceUtil.getSymbolPrice(targetCoin+fiat, binance)
+      console.log(magenta + "nowSymbolPrice: " + nowSymbolPrice + reset);
 
+      const balanceOfPayments = new BigNumber( parseFloat(nowSymbolPrice) ).div(calAvePriceHaveNow['aveBuyPrice']).times(100);
+      console.log(magenta + "balanceOfPayments: " + balanceOfPayments + reset);
+    }
+  }
+
+  /**
+   * 現在保有しているsymbol全てについて
+   * ・現在保有数量から平均取得価額を算出する
+   * ・平均取得価額は現在取引価額から見て収支が何%かを算出する
+   * @param binance
+   */
+  async showBalanceOfPayments(binance: typeof Binance) {
+    // 現在保有している通貨リストを取得
+    const hasCoinList: string[] = await binanceUtil.getHasCoinList(true, binance);
+    // console.log("file: app.ts => line 82 => hasCoinList", hasCoinList);
+
+    // 各通貨の平均購入価額を算出する
+    const avePriceHasCoins = await this.calAvePriceHaveNow(hasCoinList, binance);
+    // console.log("file: binanceService.ts => line 100 => showBalanceOfPayments => this", this);
+
+    const result = [];
+    for(let avePrice of avePriceHasCoins) {
+
+      const {coin: propCoin, aveBuyPrice: propAveBuyPrice} = avePrice;
+
+      if( otherUtil.isString(propCoin) && otherUtil.isNumber(propAveBuyPrice) ) {
+        // 平均購入価額を丸める(四捨五入)
+        const propAveBuyPriceDp = new BigNumber( propAveBuyPrice ).dp(6); // 6桁精度
+        // 現在価格を取得
+        const nowSymbolPrice: string = await binanceUtil.getSymbolPrice(propCoin+fiat, binance)
+        const nowSymbolPriceDp = new BigNumber( parseFloat(nowSymbolPrice) ).dp(6);
+        // 平均取得価額は現在価額から見て収支は何%かを算出
+        const balanceOfPayments = new BigNumber( parseFloat(nowSymbolPrice) ).div( new BigNumber(propAveBuyPrice) ).times(100);
+        const balanceOfPaymentsDp = balanceOfPayments.dp(1);
+        let balanceOfPaymentsStrZeroPadding = balanceOfPaymentsDp.toString();
+        if(balanceOfPaymentsStrZeroPadding.substr(-2, 1) != '.') {
+          // 0で埋める
+          balanceOfPaymentsStrZeroPadding = balanceOfPaymentsStrZeroPadding + '.0';
+        }
+
+        // 結果をプッシュ
+        result.push({
+            coin: propCoin
+          , aveBuyPrice: propAveBuyPriceDp.toNumber()
+          , nowSymbolPrice: nowSymbolPriceDp.toNumber()
+          , balanceOfPayments: balanceOfPaymentsStrZeroPadding
+        });
+      }else{
+        console.error(red + "file: app.ts => line 110 " + reset);
+        console.error(red + "【propCoin != null && propAveBuyPrice != null】 => false" + reset);
+      }
+    }
+
+    // 結果の出力
+    console.table(result);
+  }
 
 }

@@ -20,13 +20,6 @@ const binanceService = new BinanceService();
 const {fiat, coin, symbol, buy, sell} = config;
 const {cyan, red, green, yellow, magenta, reset} = config; // ログの色付け用
 
-// プリミティブの判定
-const isString = (arg: any): arg is string  => typeof arg === "string";
-const isNumber = (arg: any): arg is number  => typeof arg === "number";
-
-
-
-
 // -------------- binanceUtilクラス_基本編 --------------
 
 // binanceUtil.getSymbolPrice(symbol, binance)
@@ -67,82 +60,19 @@ const isNumber = (arg: any): arg is number  => typeof arg === "number";
 
 // -------------- binanceServiceクラス_発展編 --------------
 
-// // 現在保有数量から平均取得価額を算出する
-// // [1つのsymbol]
+// // 1つのsymbolについて 現在保有数量から平均取得価額を算出する
 // (async () => {
-//   const calAvePriceHaveNow= await binanceService.calAvePriceHaveNow(coin, binance);
-//   for(let key in calAvePriceHaveNow) {
-//     console.log(magenta + key + ": " + calAvePriceHaveNow[key] + reset);
-//   }
-//   const targetCoin = calAvePriceHaveNow['coin'];
-//   if(typeof targetCoin === 'string') {
-//     const nowSymbolPrice = await binanceUtil.getSymbolPrice(targetCoin+fiat, binance)
-//     console.log(magenta + "nowSymbolPrice: " + nowSymbolPrice + reset);
-
-//     const balanceOfPayments = new BigNumber( parseFloat(nowSymbolPrice) ).div(calAvePriceHaveNow['aveBuyPrice']).times(100);
-//     console.log(magenta + "balanceOfPayments: " + balanceOfPayments + reset);
-//   }
+//   await binanceService.showAvePriceHaveNow(binance);
 // })();
 
-
-
+// 現在保有しているsymbol全てについて
 // ・現在保有数量から平均取得価額を算出する
-// ・平均取得価額は現在取引価額から見て収支何%かを算出する
-// [現在保有しているsymbol全て]
-const show = function() {
-  (async () => {
-    const hasCoinList: string[] = await binanceUtil.getHasCoinList(true, binance);
-    // console.log("file: app.ts => line 82 => hasCoinList", hasCoinList);
+// ・平均取得価額は現在取引価額から見て収支が何%かを算出する
+// これを定期実行する
+setTimeout(binanceService.showBalanceOfPayments.bind(binanceService), 0, binance);  // bindで呼び出し先のthisが参照するオブジェクトを固定している
+setInterval(binanceService.showBalanceOfPayments.bind(binanceService), 300000, binance);
 
-    const avePriceHasCoins = await binanceService.calAvePriceHaveNow(hasCoinList, binance);
-    const result = [];
-    for(let avePrice of avePriceHasCoins) {
-      const {coin: propCoin, aveBuyPrice: propAveBuyPrice} = avePrice;
-
-      if( isString(propCoin) && isNumber(propAveBuyPrice) ) {
-        // 平均購入価額を丸める(四捨五入)
-        const propAveBuyPriceDp = new BigNumber( propAveBuyPrice ).dp(6); // 6桁精度
-        // 現在価格を取得
-        const nowSymbolPrice: string = await binanceUtil.getSymbolPrice(propCoin+fiat, binance)
-        const nowSymbolPriceDp = new BigNumber( parseFloat(nowSymbolPrice) ).dp(6);
-        // 平均取得価額は現在価額から見て収支は何%かを算出
-        const balanceOfPayments = new BigNumber( parseFloat(nowSymbolPrice) ).div( new BigNumber(propAveBuyPrice) ).times(100);
-        const balanceOfPaymentsDp = balanceOfPayments.dp(1);
-        let balanceOfPaymentsStrZeroPadding = balanceOfPaymentsDp.toString();
-        if(balanceOfPaymentsStrZeroPadding.substr(-2, 1) != '.') {
-          // 0で埋める
-          balanceOfPaymentsStrZeroPadding = balanceOfPaymentsStrZeroPadding + '.0';
-        }
-
-        // 結果をプッシュ
-        result.push({
-            coin: propCoin
-          , aveBuyPrice: propAveBuyPriceDp.toNumber()
-          , nowSymbolPrice: nowSymbolPriceDp.toNumber()
-          , balanceOfPayments: balanceOfPaymentsStrZeroPadding
-        });
-      }else{
-        console.error(red + "file: app.ts => line 110 " + reset);
-        console.error(red + "【propCoin != null && propAveBuyPrice != null】 => false" + reset);
-      }
-    }
-    // 収支率で降順ソート
-    // result.sort((a, b) => {
-    //   if (a.balanceOfPayments > b.balanceOfPayments) {
-    //     return -1;
-    //   } else {
-    //     return 1;
-    //   }
-    // });
-
-    // 結果の出力
-    console.table(result);
-  })();
-}
-
-setTimeout(show, 0);
-setInterval(show, 180000);
-
+// // ローソク足取得サンプル
 // binance.candlesticks("BNBBTC", "5m", (error, ticks, symbol) => {
 //   console.info("candlesticks()", ticks);
 //   let last_tick = ticks[ticks.length - 1];
