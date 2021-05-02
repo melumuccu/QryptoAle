@@ -153,4 +153,45 @@ export class BinanceService {
     console.table(result);
   }
 
+  /**
+   * from => to 換算
+   * @param from 通貨
+   * @param to 通貨
+   * @param binance
+   * @returns 換算後の値
+   */
+  async convert(from: string, to: string, binance: typeof Binance): Promise<number> {
+
+    let convertedPrice: number = null;
+    if(to == 'JPY') {
+      const toJpy = 108;  // 仮
+      const symbol = from + config.fiat;
+
+      // 換算対象のbaanceを取得
+      const balanceB = new BigNumber( parseFloat( await binanceUtil.getCoinBalance(from, binance) ) );
+      // fiat換算のレートを取得
+      const priceB = new BigNumber( parseFloat( await binanceUtil.getSymbolPrice(symbol, binance) ) );
+
+      // fiat換算
+      const convertedfiatB = balanceB.times(priceB);
+      // JPY換算
+      const convertedJpyB = convertedfiatB.times(toJpy).dp(0);
+
+      convertedPrice = convertedJpyB.toNumber();
+    }else{
+      const symbol = from + to;
+      // 換算対象のbaanceを取得
+      const balanceB = new BigNumber( parseFloat( await binanceUtil.getCoinBalance(from, binance) ) );
+      // from => to レートを取得
+      const priceB = new BigNumber( parseFloat( await binanceUtil.getSymbolPrice(symbol, binance) ) );
+      // 換算
+      const converted = balanceB.times(priceB).dp(0);
+
+      convertedPrice = converted.toNumber();
+    }
+
+    console.log(`converted ${from} => ${to} : ${convertedPrice}`);
+    return convertedPrice;
+  }
+
 }

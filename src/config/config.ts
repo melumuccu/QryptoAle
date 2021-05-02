@@ -3,7 +3,8 @@
  */
 
 export class Config {
-  fiat: string = 'USDT'
+  jpy: string = "JPY";
+  fiat: string = 'USDT';
   coin: string = 'BAT';
   symbol: string = this.coin + this.fiat;
   buy: boolean = true;
