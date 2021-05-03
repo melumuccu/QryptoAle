@@ -17,7 +17,7 @@ const calculateUtil = new CalculateUtil();
 const binanceService = new BinanceService();
 
 // 各コンフィグ
-const {fiat, coin, symbol, buy, sell} = config;
+const {jpy, fiat, coin, symbol, buy, sell} = config;
 const {cyan, red, green, yellow, magenta, reset} = config; // ログの色付け用
 
 // -------------- binanceUtilクラス_基本編 --------------
@@ -81,5 +81,5 @@ const {cyan, red, green, yellow, magenta, reset} = config; // ログの色付け
 // 金額換算
 // (全通貨分)
 (async () => {
-  binanceService.convertAllCoins(config.jpy, binance);
+  binanceService.convertAllCoins(jpy, binance);
 })();

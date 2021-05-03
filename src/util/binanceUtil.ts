@@ -11,7 +11,6 @@ const Binance = require('node-binance-api');
 const config = new Config();
 
 // 各コンフィグ
-const {fiat, coin, symbol, buy, sell} = config;
 const {cyan, red, green, yellow, magenta, reset} = config // ログの色付け用
 
 
@@ -169,7 +168,7 @@ export class BinanceUtil {
 
     for( let balance in balanceOfHasCoins ) {
 
-      const symbol = balance + fiat;
+      const symbol = balance + config.fiat;
       const symbolPrice: string | void = await this.getSymbolPrice(symbol, binance)
                                         .then(result => {
                                           return result
