@@ -156,7 +156,7 @@ export class BinanceUtil {
 
   /**
    * 現在保有している通貨リストを取得
-   * 少額(Fiat通貨に換算後、○○Fiat以下)のコインは省く
+   * 少額(Fiat通貨に換算後、1Fiat以下)のコインは省く
    * @param includeOnOrder 注文中の数量を含むか
    * @param binance
    * @returns 保有通貨リスト

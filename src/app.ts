@@ -72,15 +72,14 @@ const {cyan, red, green, yellow, magenta, reset} = config; // ログの色付け
 // setTimeout(binanceService.showBalanceOfPayments.bind(binanceService), 0, binance);  // bindで呼び出し先のthisが参照するオブジェクトを固定している
 // setInterval(binanceService.showBalanceOfPayments.bind(binanceService), 300000, binance);
 
-// 金額換算
-(async () => {
-  await binanceService.convert(coin, fiat, binance);
-})();
+// // 金額換算
+// // (1通貨分)
+// (async () => {
+//   await binanceService.convert(coin, fiat, binance);
+// })();
 
-// // ローソク足取得サンプル
-// binance.candlesticks("BNBBTC", "5m", (error, ticks, symbol) => {
-//   console.info("candlesticks()", ticks);
-//   let last_tick = ticks[ticks.length - 1];
-//   let [time, open, high, low, close, volume, closeTime, assetVolume, trades, buyBaseVolume, buyAssetVolume, ignored] = last_tick;
-//   console.info(symbol+" last close: "+close);
-// }, {limit: 500, endTime: 1514764800000});
+// 金額換算
+// (全通貨分)
+(async () => {
+  binanceService.convertAllCoins(config.jpy, binance);
+})();

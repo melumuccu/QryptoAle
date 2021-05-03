@@ -163,35 +163,92 @@ export class BinanceService {
   async convert(from: string, to: string, binance: typeof Binance): Promise<number> {
 
     let convertedPrice: number = null;
-    if(to == 'JPY') {
+    if(to == config.jpy) {
       const toJpy = 108;  // 仮
       const symbol = from + config.fiat;
 
-      // 換算対象のbaanceを取得
+      // 換算対象のbalanceを取得
       const balanceB = new BigNumber( parseFloat( await binanceUtil.getCoinBalance(from, binance) ) );
-      // fiat換算のレートを取得
-      const priceB = new BigNumber( parseFloat( await binanceUtil.getSymbolPrice(symbol, binance) ) );
 
-      // fiat換算
-      const convertedfiatB = balanceB.times(priceB);
+      let convertedfiatB: BigNumber = null;
+      // fiatをfiatに換算しようとしてしまうケースを考慮
+      if(from != config.fiat) {
+        // fiat換算のレートを取得
+        const priceB = new BigNumber( parseFloat( await binanceUtil.getSymbolPrice(symbol, binance) ) );
+
+        // fiat換算
+        convertedfiatB = balanceB.times(priceB);
+      }else{
+        // 換算の必要なし
+        convertedfiatB = balanceB.dp(0);
+      }
+
       // JPY換算
       const convertedJpyB = convertedfiatB.times(toJpy).dp(0);
 
       convertedPrice = convertedJpyB.toNumber();
     }else{
       const symbol = from + to;
-      // 換算対象のbaanceを取得
+      // 換算対象のbalanceを取得
       const balanceB = new BigNumber( parseFloat( await binanceUtil.getCoinBalance(from, binance) ) );
-      // from => to レートを取得
-      const priceB = new BigNumber( parseFloat( await binanceUtil.getSymbolPrice(symbol, binance) ) );
-      // 換算
-      const converted = balanceB.times(priceB).dp(0);
+
+      let converted = null;
+      /// fiatをfiatに換算しようとしてしまうケースを考慮
+      if(from != to) {
+        // from => to レートを取得
+        const priceB = new BigNumber( parseFloat( await binanceUtil.getSymbolPrice(symbol, binance) ) );
+        // 換算
+        converted = balanceB.times(priceB).dp(0);
+      }else{
+        converted = balanceB.dp(0);
+      }
 
       convertedPrice = converted.toNumber();
     }
 
-    console.log(`converted ${from} => ${to} : ${convertedPrice}`);
     return convertedPrice;
   }
+
+  /**
+   * 所有している全通貨を指定通貨に換算
+   * @param binance
+   */
+  async convertAllCoins(to: string, binance: typeof Binance) {
+    // 通貨リストの取得
+    const coinList = await binanceUtil.getHasCoinList(true, binance);
+    coinList.push(config.fiat); // fiatも対象にする
+
+    const tmp = [];
+    for(let coin of coinList) {
+      const from = coin;
+      const convertedPrice = await this.convert(from , to, binance);
+
+      // コンマ区切りする前にソートしないと
+      // うまくソートできないためtmpに格納
+      tmp.push({
+        from: from,
+        to: to,
+        converted: convertedPrice,
+      });
+    }
+    // ソート
+    tmp.sort( (a, b) => b.converted - a.converted );
+    // 換算後の合計
+    const total = tmp.reduce( (sum, i) => sum + i.converted, 0);
+
+    // コンマ区切りして格納
+    const convertedList = [];
+    for(let list of tmp) {
+      convertedList.push({
+        from: list.from,
+        to: list.to,
+        converted: list.converted.toLocaleString(),
+      });
+    }
+
+    // 出力
+    console.table(convertedList);
+    console.log(`sum of converted: ${total.toLocaleString()} ${to}`);
+  };
 
 }
