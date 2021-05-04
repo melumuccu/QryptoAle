@@ -26,11 +26,10 @@ export class BinanceUtil {
     return new Promise((resolve, reject) => {
 
       binance.prices(function(error, ticker) {
-        if( typeof ticker[symbol] !== undefined ) {
-          // console.log("Price of ", symbol, ": ", ticker[symbol]);
+        if( ticker[symbol] != null ) {
           return resolve(ticker[symbol]);
         }else{
-          return reject('エラー!');
+          return reject(new Error(error));
         }
       });
 
@@ -47,10 +46,10 @@ export class BinanceUtil {
     return new Promise((resolve, reject) => {
 
       binance.balance(function(error, balances) {
-        if( typeof balances[coin] !== undefined ) {
+        if( balances[coin] != null ) {
           return resolve(balances[coin].available);
         }else{
-          return reject('エラー!');
+          return reject(new Error(error));
         }
       });
 
@@ -73,10 +72,10 @@ export class BinanceUtil {
           let dateTime = new Date(trades[key]['time']);
           trades[key]['time'] = `${dateTime.toLocaleDateString('ja-JP')} ${dateTime.toLocaleTimeString('ja-JP')}`;
         }
-        if( typeof trades !== undefined ) {
+        if( trades != null && Object.keys(trades).length) {
           return resolve(trades);
         }else{
-          return reject('エラー!');
+          return reject(new Error(error));
         }
       });
 
@@ -92,23 +91,21 @@ export class BinanceUtil {
    */
   async getSymbolTradesBuyOrSell( isBuy: boolean, symbol: string, binance: typeof Binance): Promise<{[key: string]: string;}[]> {
     const allTrades: any = await this.getSymbolTrades(symbol, binance)
-                                  .then(result => { return result; })
                                   .catch(error => { console.error(error); });
+
+    if(allTrades == null) {
+      throw new Error("getSymbolTradesBuyOrSell: " + "allTrades == null");
+    }
 
     let buyTrades: {[key: string]: string;}[] = [];
     for(let trade of allTrades) {
-      // console.log(trade['isBuyer']);
       const isBuyer = trade['isBuyer'];
       if( isBuyer === isBuy) {
         buyTrades.push(trade);
       }
     }
 
-    if( buyTrades !== undefined ) {
-      return buyTrades;
-    }else{
-      return undefined;
-    }
+    return buyTrades;
   }
 
   /**
@@ -126,15 +123,15 @@ export class BinanceUtil {
           // 保有している通貨のみに限定
           for( let balance in balances ) {
 
-
-            // 注文中の数量を含むか否かを判定
             const availableB = new BigNumber( parseFloat(balances[balance].available) );
             const onOrderB = new BigNumber( parseFloat(balances[balance].onOrder) );
 
             let tmpBalanceB;
             if(includeOnOrder) {
+              // 注文中の数量を含む
               tmpBalanceB =  availableB.plus(onOrderB);
             }else{
+              // 注文中の数量を含まない
               tmpBalanceB =  availableB;
             }
 
@@ -144,11 +141,8 @@ export class BinanceUtil {
             }
           }
         }
-        if(balanceOfHasCoins != null) {
-          return resolve(balanceOfHasCoins);
-        }else{
-          return reject('エラー！');
-        }
+
+        return resolve(balanceOfHasCoins);
       });
     });
   }
@@ -163,16 +157,13 @@ export class BinanceUtil {
   async getHasCoinList(includeOnOrder: boolean, binance: typeof Binance): Promise<string[]> {
     let balanceList: string[] = [];
     const balanceOfHasCoins: any = await this.getAllBalances(includeOnOrder, binance)
-                                            .then(result => {return result})
                                             .catch(error => console.error(error));
 
     for( let balance in balanceOfHasCoins ) {
 
       const symbol = balance + config.fiat;
       const symbolPrice: string | void = await this.getSymbolPrice(symbol, binance)
-                                        .then(result => {
-                                          return result
-                                        }).catch(error => { console.error(error) });
+                                                  .catch(error => { console.error(red + symbol + ": can't get price " + reset) });
 
       if(typeof symbolPrice === "undefined") {
         // console.error(red + balance + " file: binanceUtil.ts => line 169 => getHasCoinList => symbolPrice", symbolPrice + reset);
@@ -199,11 +190,7 @@ export class BinanceUtil {
       }
     }
 
-    if(balanceList !== undefined) {
-      return balanceList;
-    }else{
-      console.error('error: getHasCoinList')
-    }
+    return balanceList;
   }
 
 

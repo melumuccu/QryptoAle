@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "jest --coverage",
+    "test": "jest --coverage --silent",
     "build": "tsc",
     "dev": "ts-node src/app.ts",
     "dev:watch": "ts-node-dev --respawn src/app.ts",

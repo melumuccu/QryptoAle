@@ -26,67 +26,119 @@ const Trade = {
   isBestMatch: expect.any(Boolean)
 };
 
-// BalanceSub型
-type BalanceSub = {
-  available: string,
-  onOrder: string
-}
-// Balance型
-type Balance = {
-  [key: string]: BalanceSub
-}
+// // BalanceSub型
+// type BalanceSub = {
+//   available: string,
+//   onOrder: string
+// }
+// // Balance型
+// type Balance = {
+//   [key: string]: BalanceSub
+// }
 
 // -----------------------
 
 test('getSymbolPrice', async () => {
-  const target = await binanceUtil.getSymbolPrice(config.symbol, binance);
+  // 通常パターン
   // 期待値: ex. 0.12516  5615.16545
-  expect(target).toMatch(/[0-9]+\.*[0-9]*/);
+  const targetA = binanceUtil.getSymbolPrice(config.symbol, binance);
+  await expect(targetA).resolves.toMatch(/[0-9]+\.*[0-9]*/);
+
+  // エラーパターン(fiat同士)
+  const targetB = binanceUtil.getSymbolPrice(config.fiat + config.fiat, binance);
+  await expect(targetB).rejects.toThrow('null');
+
+  // エラーパターン(存在しないペア)
+  const targetC = binanceUtil.getSymbolPrice("あア", binance);
+  await expect(targetC).rejects.toThrow('null');
 });
 
 test('getCoinBalance', async () => {
-  const target = await binanceUtil.getCoinBalance(config.coin, binance);
+  // 通常パターン
   // 期待値: ex. 0.12516  5615.16545
-  expect(target).toMatch(/[0-9]+\.*[0-9]*/);
-})
+  const targetA = binanceUtil.getCoinBalance(config.coin, binance);
+  await expect(targetA).resolves.toMatch(/[0-9]+\.*[0-9]*/);
+
+  // エラーパターン(存在しない通貨)
+  const targetB = binanceUtil.getCoinBalance("あ", binance);
+  await expect(targetB).rejects.toThrow();
+});
 
 test('getSymbolTrades', async () => {
-  const target =  await binanceUtil.getSymbolTrades(config.symbol, binance);
-  // 期待値: Tradeのプロパティを含む配列
-  expect(target).toContainEqual( Trade );
-})
+  // 通常パターン
+  // 期待値: Trade型が含まれる配列
+  const targetA = binanceUtil.getSymbolTrades(config.symbol, binance);
+  await expect(targetA).resolves.toContainEqual( Trade );
+
+  // エラーパターン(fiat同士)
+  const targetB = binanceUtil.getSymbolTrades(config.fiat + config.fiat, binance);
+  await expect(targetB).rejects.toThrow();
+
+  // エラーパターン(存在しないペア)
+  const targetC = binanceUtil.getSymbolTrades("あア", binance);
+  await expect(targetC).rejects.toThrow();
+});
 
 test('getSymbolTradesBuyOrSell', async () => {
-  const targetBuy =  await binanceUtil.getSymbolTradesBuyOrSell(config.buy, config.symbol, binance);
-  // 期待値: Tradeのプロパティを含む配列
-  expect(targetBuy).toContainEqual( Trade );
+  // 通常パターン: BUY
+  // 期待値: Tradeのプロパティを含む配列, isBuyer=trueのみ
+  const targetBuyN1 = binanceUtil.getSymbolTradesBuyOrSell(config.buy, config.symbol, binance);
+  await expect(targetBuyN1).resolves.toContainEqual( Trade );
+  await expect(targetBuyN1).resolves.not.toContainEqual( {isBuyer: false} );
 
-  const targetSell =  await binanceUtil.getSymbolTradesBuyOrSell(config.sell, config.symbol, binance);
-  // 期待値: Tradeのプロパティを含む配列
-  expect(targetSell).toContainEqual( Trade );
-})
+  // 通常パターン: SELL
+  // 期待値: Tradeのプロパティを含む配列, isBuyer=falseのみ
+  const targetSellN1 = binanceUtil.getSymbolTradesBuyOrSell(config.sell, config.symbol, binance);
+  await expect(targetSellN1).resolves.toContainEqual( Trade );
+  await expect(targetSellN1).resolves.not.toContainEqual( {isBuyer: true} );
+
+  // エラーパターン(fiat同士): BUY
+  const targetBuyE1 = binanceUtil.getSymbolTradesBuyOrSell(config.buy, config.fiat + config.fiat, binance);
+  await expect(targetBuyE1).rejects.toThrow("allTrades == null");
+
+  // エラーパターン(fiat同士): SELL
+  const targetSellE1 = binanceUtil.getSymbolTradesBuyOrSell(config.sell, config.fiat + config.fiat, binance);
+  await expect(targetSellE1).rejects.toThrow("allTrades == null");
+
+  // エラーパターン(存在しないペア): BUY
+  const targetBuyE2 = binanceUtil.getSymbolTradesBuyOrSell(config.buy, "あア", binance);
+  await expect(targetBuyE2).rejects.toThrow("allTrades == null");
+
+  // エラーパターン(存在しないペア): SELL
+  const targetSellE2 = binanceUtil.getSymbolTradesBuyOrSell(config.sell, "あア", binance);
+  await expect(targetSellE2).rejects.toThrow("allTrades == null");
+
+  // エラーパターン(存在するペアだが取引を一度もしていない): BUY
+  const targetBuyE3 = binanceUtil.getSymbolTradesBuyOrSell(config.buy, "ACMBTC", binance);
+  await expect(targetBuyE3).rejects.toThrow("allTrades == null");
+
+  // エラーパターン(存在するペアだが取引を一度もしていない): SELL
+  const targetSellE3 = binanceUtil.getSymbolTradesBuyOrSell(config.sell, "ACMBTC", binance);
+  await expect(targetSellE3).rejects.toThrow("allTrades == null");
+
+});
 
 test('getAllBalances', async () => {
   // onOrderを含むパターン
-  const targetTrue = await binanceUtil.getAllBalances(true, binance);
   // 期待値: ex. {"ADA": {"available": "0.00966000", "onOrder": "0.00000000"},...
-  expect(targetTrue).toBeTruthy();
+  const targetTrue = binanceUtil.getAllBalances(true, binance);
+  await expect(targetTrue).resolves.toBeTruthy();
 
   // onOrderを含まないパターン
-  const targetFalse = await binanceUtil.getAllBalances(false, binance);
   // 期待値: ex. {"ADA": {"available": "0.00966000", "onOrder": "0.00000000"},...
-  expect(targetFalse).toBeTruthy();
+  const targetFalse = binanceUtil.getAllBalances(false, binance);
+  await expect(targetFalse).resolves.toBeTruthy();
 })
 
 test('getHasCoinList', async () => {
   // onOrderを含むパターン
-  const targetTrue = await binanceUtil.getHasCoinList(true, binance);
   // 期待値: ex. [ADA, XEM, ...]
+  const targetTrue = await binanceUtil.getHasCoinList(true, binance);
   expect(targetTrue).toBeTruthy();
 
   // onOrderを含まないパターン
-  const targetFalse = await binanceUtil.getHasCoinList(false, binance);
   // 期待値: ex. [ADA, XEM, ...]
+  const targetFalse = await binanceUtil.getHasCoinList(false, binance);
   expect(targetTrue).toBeTruthy();
 })
 
