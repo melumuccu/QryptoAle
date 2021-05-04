@@ -54,12 +54,12 @@ const {cyan, red, green, yellow, magenta, reset} = config; // ログの色付け
 //   console.error(error);
 // });
 
-binanceUtil.getHasCoinList(true, binance)
-.then(result => {
-  console.log(`getHasCoinList: ${result}`);
-}).catch(error => {
-  console.error(error);
-});
+// binanceUtil.getHasCoinList(true, binance)
+// .then(result => {
+//   console.log(`getHasCoinList: ${result}`);
+// }).catch(error => {
+//   console.error(error);
+// });
 
 // binanceUtil.getSymbolTradesBuyOrSell( buy, config.fiat + config.fiat, binance )
 // .then(result => {
@@ -70,7 +70,7 @@ binanceUtil.getHasCoinList(true, binance)
 // });
 
 
-// -------------- binanceServiceクラス_発展編 --------------
+// // -------------- binanceServiceクラス_発展編 --------------
 
 // // 1つのsymbolについて 現在保有数量から平均取得価額を算出
 // // 定期実行する
@@ -78,21 +78,21 @@ binanceUtil.getHasCoinList(true, binance)
 // setInterval(binanceService.showAvePriceHaveNow.bind(binanceService), 7000, binance);
 
 
-// // 現在保有しているsymbol全てについて
-// // ・現在保有数量から平均取得価額を算出する
-// // ・平均取得価額は現在取引価額から見て収支が何%かを算出する
-// // これを定期実行する
-// setTimeout(binanceService.showBalanceOfPayments.bind(binanceService), 0, binance);  // bindで呼び出し先のthisが参照するオブジェクトを固定している
-// setInterval(binanceService.showBalanceOfPayments.bind(binanceService), 300000, binance);
+// 現在保有しているsymbol全てについて
+// ・現在保有数量から平均取得価額を算出する
+// ・平均取得価額は現在取引価額から見て収支が何%かを算出する
+// これを定期実行する
+setTimeout(binanceService.showBalanceOfPayments.bind(binanceService), 0, binance);  // bindで呼び出し先のthisが参照するオブジェクトを固定している
+setInterval(binanceService.showBalanceOfPayments.bind(binanceService), 300000, binance);
 
-// // 金額換算
-// // (1通貨分)
-// (async () => {
-//   await binanceService.convert(coin, fiat, binance);
-// })();
+// // // 金額換算
+// // // (1通貨分)
+// // (async () => {
+// //   await binanceService.convert(coin, fiat, binance);
+// // })();
 
-// // 金額換算
-// // (全通貨分)
-// (async () => {
-//   binanceService.convertAllCoins(jpy, binance);
-// })();
+// 金額換算
+// (全通貨分)
+(async () => {
+  binanceService.convertAllCoins(jpy, binance);
+})();

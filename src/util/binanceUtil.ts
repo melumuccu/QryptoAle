@@ -4,6 +4,7 @@
 
 import BigNumber from "bignumber.js";
 import {Config} from '../config/config';
+import {Trade} from './otherUtil';
 
 const Binance = require('node-binance-api');
 
@@ -63,10 +64,10 @@ export class BinanceUtil {
    * @param binance
    * @returns 取引履歴(売買両方)
    */
-  getSymbolTrades(symbol: string, binance: typeof Binance): Promise<{[key: string]: string;}[]> {
+  getSymbolTrades(symbol: string, binance: typeof Binance): Promise<Trade[]> {
     return new Promise((resolve, reject) => {
 
-      binance.trades(symbol, (error, trades:{[key: string]: string;}[], symbol: string) => {
+      binance.trades(symbol, (error, trades:Trade[], symbol: string) => {
         // UnixTime(13桁:ミリ秒)を変換
         for( let key in trades ) {
           let dateTime = new Date(trades[key]['time']);
@@ -89,15 +90,15 @@ export class BinanceUtil {
    * @param binance
    * @returns 取引履歴(売り買い指定)
    */
-  async getSymbolTradesBuyOrSell( isBuy: boolean, symbol: string, binance: typeof Binance): Promise<{[key: string]: string;}[]> {
-    const allTrades: any = await this.getSymbolTrades(symbol, binance)
-                                  .catch(error => { console.error(error); });
+  async getSymbolTradesBuyOrSell( isBuy: boolean, symbol: string, binance: typeof Binance): Promise<Trade[]> {
+    const allTrades: void | Trade[] = await this.getSymbolTrades(symbol, binance)
+                                          .catch(error => { console.error(error); });
 
-    if(allTrades == null) {
+    if(allTrades == null || typeof allTrades === "undefined") {
       throw new Error("getSymbolTradesBuyOrSell: " + "allTrades == null");
     }
 
-    let buyTrades: {[key: string]: string;}[] = [];
+    let buyTrades: Trade[] = [];
     for(let trade of allTrades) {
       const isBuyer = trade['isBuyer'];
       if( isBuyer === isBuy) {

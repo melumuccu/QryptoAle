@@ -36,10 +36,10 @@ export class BinanceService {
     // console.log("file: binanceService.ts => line 67 => calAvePriceHaveNow => buyTradesHaveNow", buyTradesHaveNow);
 
     // 購入履歴から平均価格を算出
-    const avePriceHaveNow: number = calculateUtil.calAvePrice(buyTradesHaveNow, binance);
+    const avePriceHaveNow = calculateUtil.calAvePrice(buyTradesHaveNow, binance);
     // console.log("file: binanceService.ts => line 72 => calAvePriceHaveNow => avePriceHaveNowB", avePriceHaveNowB.toNumber());
 
-    const returnVal: {[key:string]: string | number;} = {coin: coin, aveBuyPrice: avePriceHaveNow};
+    const returnVal = {coin: coin, aveBuyPrice: avePriceHaveNow};
 
     return returnVal;
   }
@@ -61,12 +61,14 @@ export class BinanceService {
     // オーバーロードの分岐
     if(typeof coin === 'string') {
 
+      // 平均購入価額を算出
       const avePriceHaveNowB = await this.funcCalAvePriceHaveNow(coin, binance);
 
       returnVal = avePriceHaveNowB;
 
     }else if( Array.isArray(coin) ){
 
+      // 平均購入価額を算出
       // 非同期ループ処理
       const tasks = coin.map(coin => this.funcCalAvePriceHaveNow(coin, binance));
       // console.log("file: binanceService.ts => line 55 => calAvePriceHaveNow => tasks", tasks);
@@ -85,16 +87,22 @@ export class BinanceService {
    * 現在保有数量から平均取得価額を算出する
    * @param binance
    */
-  async showAvePriceHaveNow(binance: typeof Binance) {
-    const calAvePriceHaveNow= await this.calAvePriceHaveNow(config.coin, binance);
+  async showAvePriceHaveNow(binance: typeof Binance): Promise<void> {
+    // 平均購入価額を算出
+    const calAvePriceHaveNow = await this.calAvePriceHaveNow(config.coin, binance);
+
+    // コンソール出力
     for(let key in calAvePriceHaveNow) {
       console.log(magenta + key + ": " + calAvePriceHaveNow[key] + reset);
     }
+
     const targetCoin = calAvePriceHaveNow['coin'];
     if(typeof targetCoin === 'string') {
+      // 現在価格を取得
       const nowSymbolPrice = await binanceUtil.getSymbolPrice(targetCoin + config.fiat, binance)
       console.log(magenta + "nowSymbolPrice: " + nowSymbolPrice + reset);
 
+      // 収支割合を算出
       const balanceOfPayments = new BigNumber( parseFloat(nowSymbolPrice) ).div(calAvePriceHaveNow['aveBuyPrice']).times(100);
       console.log(magenta + "balanceOfPayments: " + balanceOfPayments + reset);
     }
@@ -106,9 +114,9 @@ export class BinanceService {
    * ・平均取得価額は現在取引価額から見て収支が何%かを算出する
    * @param binance
    */
-  async showBalanceOfPayments(binance: typeof Binance) {
+  async showBalanceOfPayments(binance: typeof Binance): Promise<void> {
     // 現在保有している通貨リストを取得
-    const hasCoinList: string[] = await binanceUtil.getHasCoinList(true, binance);
+    const hasCoinList = await binanceUtil.getHasCoinList(true, binance);
     // console.log("file: app.ts => line 82 => hasCoinList", hasCoinList);
 
     // 各通貨の平均購入価額を算出する
@@ -124,9 +132,9 @@ export class BinanceService {
         // 平均購入価額を丸める(四捨五入)
         const propAveBuyPriceDp = new BigNumber( propAveBuyPrice ).dp(6); // 6桁精度
         // 現在価格を取得
-        const nowSymbolPrice: string = await binanceUtil.getSymbolPrice(propCoin + config.fiat, binance)
+        const nowSymbolPrice = await binanceUtil.getSymbolPrice(propCoin + config.fiat, binance)
         const nowSymbolPriceDp = new BigNumber( parseFloat(nowSymbolPrice) ).dp(6);
-        // 平均取得価額は現在価額から見て収支は何%かを算出
+        // 収支割合を算出
         const balanceOfPayments = new BigNumber( parseFloat(nowSymbolPrice) ).div( new BigNumber(propAveBuyPrice) ).times(100);
         const balanceOfPaymentsDp = balanceOfPayments.dp(1);
         let balanceOfPaymentsStrZeroPadding = balanceOfPaymentsDp.toString();
@@ -163,6 +171,8 @@ export class BinanceService {
 
     let convertedPrice: number = null;
     if(to == config.jpy) {
+      // JPY換算の場合
+
       const toJpy = 108;  // 仮
       const symbol = from + config.fiat;
 
@@ -170,14 +180,13 @@ export class BinanceService {
       const balanceB = new BigNumber( parseFloat( await binanceUtil.getCoinBalance(from, binance) ) );
 
       let convertedfiatB: BigNumber = null;
-      // fiatをfiatに換算しようとしてしまうケースを考慮
       if(from != config.fiat) {
         // fiat換算のレートを取得
         const priceB = new BigNumber( parseFloat( await binanceUtil.getSymbolPrice(symbol, binance) ) );
-
         // fiat換算
         convertedfiatB = balanceB.times(priceB);
       }else{
+        // fiatをfiatに換算しようとしてしまうケースを考慮
         // 換算の必要なし
         convertedfiatB = balanceB.dp(0);
       }
@@ -187,6 +196,8 @@ export class BinanceService {
 
       convertedPrice = convertedJpyB.toNumber();
     }else{
+      // JPY以外に換算の場合
+
       const symbol = from + to;
       // 換算対象のbalanceを取得
       const balanceB = new BigNumber( parseFloat( await binanceUtil.getCoinBalance(from, binance) ) );

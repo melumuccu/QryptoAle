@@ -5,6 +5,8 @@
 import BigNumber from 'bignumber.js'
 import {BinanceUtil} from '../util/binanceUtil';
 import {Config} from '../config/config';
+import {Trade} from './otherUtil';
+
 
 const Binance = require('node-binance-api');
 
@@ -65,7 +67,7 @@ export class CalculateUtil {
    * @param binance
    * @returns 購入履歴
    */
-  async calTradesHaveNow(coin: string, binance: typeof Binance): Promise<{[key: string]: string;}[]> {
+  async calTradesHaveNow(coin: string, binance: typeof Binance): Promise<Trade[]> {
   // console.log("file: calculateUtil.ts => line 123 => calTradesHaveNow => coin", coin);
 
     const symbol = coin + config.fiat;
@@ -81,7 +83,7 @@ export class CalculateUtil {
     // console.log("file: calculateUtil.ts => line 135 => calTradesHaveNow => symbolBuyTrades", symbolBuyTrades);
 
     // 現在の保有数量にあたる購入履歴を抜き出し(最新の購入履歴から抜き出し)
-    const tmpTrades: {[key: string]: string;}[] = [];
+    const tmpTrades: Trade[] = [];
     for(let i=symbolBuyTrades.length-1; i>=0; i--) {
       // console.log('------------------');
 
@@ -116,7 +118,7 @@ export class CalculateUtil {
     } // ------------ for end
 
     // リターンの配列(配列内が新しいものから順に並んでいるので逆順に)
-    const returnTrades: {[key: string]: string;}[] = tmpTrades.reverse();
+    const returnTrades = tmpTrades.reverse();
     return returnTrades;
   }
 
