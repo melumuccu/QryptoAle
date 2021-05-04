@@ -4,3 +4,20 @@ export class OtherUtil {
   isNumber = (arg: any): arg is number  => typeof arg === "number";
 
 }
+
+// Trade型
+export interface Trade {
+  symbol: string,
+  id: number,
+  orderId: number,
+  orderListId: number,
+  price: string,
+  qty: string,
+  quoteQty: string,
+  commission: string,
+  commissionAsset: string,
+  time: string,
+  isBuyer: boolean,
+  isMaker: boolean,
+  isBestMatch: boolean
+}

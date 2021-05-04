@@ -5,7 +5,7 @@
 export class Config {
   jpy: string = "JPY";
   fiat: string = 'USDT';
-  coin: string = 'BAT';
+  coin: string = 'TKO';
   symbol: string = this.coin + this.fiat;
   buy: boolean = true;
   sell: boolean = false;

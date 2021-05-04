@@ -175,7 +175,7 @@ export class BinanceUtil {
                                         }).catch(error => { console.error(error) });
 
       if(typeof symbolPrice === "undefined") {
-        console.error(red + balance + " file: binanceUtil.ts => line 169 => getHasCoinList => symbolPrice", symbolPrice + reset);
+        // console.error(red + balance + " file: binanceUtil.ts => line 169 => getHasCoinList => symbolPrice", symbolPrice + reset);
       }
       const symbolPriceB = new BigNumber(parseFloat(symbolPrice));
 
