@@ -74,7 +74,7 @@ export class CalculateUtil {
     // console.log("file: calculateUtil.ts => line 127 => calTradesHaveNow => symbol", symbol);
 
     // 通貨の現在保有数量を取得
-    const coinBalance: string = await binanceUtil.getCoinBalance( coin, binance);
+    const coinBalance: string = await binanceUtil.getCoinBalance(true, coin, binance);
     // console.log("file: calculateUtil.ts => line 130 => calTradesHaveNow => coinBalance", coinBalance);
     let coinBalanceB: BigNumber = new BigNumber( coinBalance );
 

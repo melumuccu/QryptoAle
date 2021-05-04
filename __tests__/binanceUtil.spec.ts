@@ -54,14 +54,23 @@ test('getSymbolPrice', async () => {
 });
 
 test('getCoinBalance', async () => {
-  // 通常パターン
+  // 通常パターン(onOrder含む)
   // 期待値: ex. 0.12516  5615.16545
-  const targetA = binanceUtil.getCoinBalance(config.coin, binance);
-  await expect(targetA).resolves.toMatch(/[0-9]+\.*[0-9]*/);
+  const targetN1 = binanceUtil.getCoinBalance(true, config.coin, binance);
+  await expect(targetN1).resolves.toMatch(/[0-9]+\.*[0-9]*/);
 
-  // エラーパターン(存在しない通貨)
-  const targetB = binanceUtil.getCoinBalance("あ", binance);
-  await expect(targetB).rejects.toThrow();
+  // 通常パターン(onOrder含まない)
+  // 期待値: ex. 0.12516  5615.16545
+  const targetN2 = binanceUtil.getCoinBalance(false, config.coin, binance);
+  await expect(targetN2).resolves.toMatch(/[0-9]+\.*[0-9]*/);
+
+  // エラーパターン(存在しない通貨)(onOrder含む)
+  const targetE1 = binanceUtil.getCoinBalance(true, "あ", binance);
+  await expect(targetE1).rejects.toThrow();
+
+  // エラーパターン(存在しない通貨)(onOrder含まない)
+  const targetE2 = binanceUtil.getCoinBalance(false, "あ", binance);
+  await expect(targetE2).rejects.toThrow();
 });
 
 test('getSymbolTrades', async () => {

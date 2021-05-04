@@ -177,7 +177,7 @@ export class BinanceService {
       const symbol = from + config.fiat;
 
       // 換算対象のbalanceを取得
-      const balanceB = new BigNumber( parseFloat( await binanceUtil.getCoinBalance(from, binance) ) );
+      const balanceB = new BigNumber( parseFloat( await binanceUtil.getCoinBalance(true, from, binance) ) );
 
       let convertedfiatB: BigNumber = null;
       if(from != config.fiat) {
@@ -200,7 +200,7 @@ export class BinanceService {
 
       const symbol = from + to;
       // 換算対象のbalanceを取得
-      const balanceB = new BigNumber( parseFloat( await binanceUtil.getCoinBalance(from, binance) ) );
+      const balanceB = new BigNumber( parseFloat( await binanceUtil.getCoinBalance(true, from, binance) ) );
 
       let converted = null;
       /// fiatをfiatに換算しようとしてしまうケースを考慮

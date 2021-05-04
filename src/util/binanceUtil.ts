@@ -39,19 +39,31 @@ export class BinanceUtil {
 
   /**
    * 指定通貨の現在保有数量を取得
+   * @param includeOnOrder 注文中の数量を含むか
    * @param coin 指定通貨
    * @param binance
-   * @returns 現在保有数量(availableな数量に限る)
+   * @returns 現在保有数量
    */
-  getCoinBalance(coin: string, binance: typeof Binance): Promise<string> {
+  getCoinBalance(includeOnOrder: boolean, coin: string, binance: typeof Binance): Promise<string> {
     return new Promise((resolve, reject) => {
 
       binance.balance(function(error, balances) {
-        if( balances[coin] != null ) {
-          return resolve(balances[coin].available);
-        }else{
+        if( balances[coin] == null ) {
           return reject(new Error(error));
         }
+
+        const availableB = new BigNumber( parseFloat(balances[coin].available) );
+        const onOrderB = new BigNumber( parseFloat(balances[coin].onOrder) );
+        let balanceB: BigNumber = null;
+        if(includeOnOrder) {
+          // onOrderを含める
+          balanceB = availableB.plus(onOrderB);
+        }else{
+          // onOrderを含めない
+          balanceB = availableB;
+        }
+
+        return resolve( balanceB.toString() );
       });
 
     });
