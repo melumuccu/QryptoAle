@@ -39,54 +39,54 @@ type Balance = {
 // -----------------------
 
 test('getSymbolPrice', async () => {
-  const target = binanceUtil.getSymbolPrice(config.symbol, binance);
+  const target = await binanceUtil.getSymbolPrice(config.symbol, binance);
   // 期待値: ex. 0.12516  5615.16545
-  await expect(target).resolves.toMatch(/[0-9]+\.*[0-9]*/);
+  expect(target).toMatch(/[0-9]+\.*[0-9]*/);
 });
 
 test('getCoinBalance', async () => {
-  const target = binanceUtil.getCoinBalance(config.coin, binance);
+  const target = await binanceUtil.getCoinBalance(config.coin, binance);
   // 期待値: ex. 0.12516  5615.16545
-  await expect(target).resolves.toMatch(/[0-9]+\.*[0-9]*/);
+  expect(target).toMatch(/[0-9]+\.*[0-9]*/);
 })
 
 test('getSymbolTrades', async () => {
-  const target =  binanceUtil.getSymbolTrades(config.symbol, binance);
+  const target =  await binanceUtil.getSymbolTrades(config.symbol, binance);
   // 期待値: Tradeのプロパティを含む配列
-  await expect(target).resolves.toContainEqual( Trade );
+  expect(target).toContainEqual( Trade );
 })
 
 test('getSymbolTradesBuyOrSell', async () => {
-  const targetBuy =  binanceUtil.getSymbolTradesBuyOrSell(config.buy, config.symbol, binance);
+  const targetBuy =  await binanceUtil.getSymbolTradesBuyOrSell(config.buy, config.symbol, binance);
   // 期待値: Tradeのプロパティを含む配列
-  await expect(targetBuy).resolves.toContainEqual( Trade );
+  expect(targetBuy).toContainEqual( Trade );
 
-  const targetSell =  binanceUtil.getSymbolTradesBuyOrSell(config.sell, config.symbol, binance);
+  const targetSell =  await binanceUtil.getSymbolTradesBuyOrSell(config.sell, config.symbol, binance);
   // 期待値: Tradeのプロパティを含む配列
-  await expect(targetSell).resolves.toContainEqual( Trade );
+  expect(targetSell).toContainEqual( Trade );
 })
 
 test('getAllBalances', async () => {
   // onOrderを含むパターン
   const targetTrue = await binanceUtil.getAllBalances(true, binance);
   // 期待値: ex. {"ADA": {"available": "0.00966000", "onOrder": "0.00000000"},...
-  await expect(targetTrue).toBeTruthy();
+  expect(targetTrue).toBeTruthy();
 
   // onOrderを含まないパターン
   const targetFalse = await binanceUtil.getAllBalances(false, binance);
   // 期待値: ex. {"ADA": {"available": "0.00966000", "onOrder": "0.00000000"},...
-  await expect(targetFalse).toBeTruthy();
+  expect(targetFalse).toBeTruthy();
 })
 
 test('getHasCoinList', async () => {
   // onOrderを含むパターン
   const targetTrue = await binanceUtil.getHasCoinList(true, binance);
   // 期待値: ex. [ADA, XEM, ...]
-  await expect(targetTrue).toBeTruthy();
+  expect(targetTrue).toBeTruthy();
 
   // onOrderを含まないパターン
   const targetFalse = await binanceUtil.getHasCoinList(false, binance);
   // 期待値: ex. [ADA, XEM, ...]
-  await expect(targetTrue).toBeTruthy();
+  expect(targetTrue).toBeTruthy();
 })
 
