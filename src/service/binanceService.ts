@@ -6,7 +6,7 @@ import BigNumber from 'bignumber.js';
 import {Config} from '../config/config';
 import {BinanceUtil} from '../util/binanceUtil';
 import {CalculateUtil} from '../util/calculateUtil';
-import {OtherUtil} from '../util/otherUtil';
+import {OtherUtil, Props} from '../util/otherUtil';
 
 const Binance = require('node-binance-api');
 
@@ -29,7 +29,7 @@ export class BinanceService {
    * @param coin
    * @param binance
    */
-  async funcCalAvePriceHaveNow(coin: string, binance: typeof Binance): Promise<{[key:string]: string | number;}>{
+  async funcCalAvePriceHaveNow(coin: string, binance: typeof Binance): Promise<Props>{
 
     // 現在持っている数量分の購入履歴を取得
     const buyTradesHaveNow = await calculateUtil.calTradesHaveNow(coin, binance);
@@ -39,7 +39,7 @@ export class BinanceService {
     const avePriceHaveNow = calculateUtil.calAvePrice(buyTradesHaveNow, binance);
     // console.log("file: binanceService.ts => line 72 => calAvePriceHaveNow => avePriceHaveNowB", avePriceHaveNowB.toNumber());
 
-    const returnVal = {coin: coin, aveBuyPrice: avePriceHaveNow};
+    const returnVal: Props = {coin: coin, aveBuyPrice: avePriceHaveNow};
 
     return returnVal;
   }
@@ -50,13 +50,13 @@ export class BinanceService {
    * @param binance
    */
   // オーバーロード
-  async calAvePriceHaveNow(coin: string, binance: typeof Binance): Promise< {[key: string]: string | number;} >
-  async calAvePriceHaveNow(coin: string[], binance: typeof Binance): Promise< {[key: string]: string | number;}[]>
+  async calAvePriceHaveNow(coin: string, binance: typeof Binance): Promise<Props>
+  async calAvePriceHaveNow(coin: string[], binance: typeof Binance): Promise<Props[]>
 
   // 実装
-  async calAvePriceHaveNow(coin:string | string[], binance: typeof Binance): Promise< {[key: string]: string | number} | {[key: string]: string | number;}[] > {
+  async calAvePriceHaveNow(coin:string | string[], binance: typeof Binance): Promise<Props | Props[]> {
     // console.log("file: binanceService.ts => line 54 => calAvePriceHaveNow => coin", coin);
-    let returnVal: { [key: string]: string | number } | {[key: string]: string | number}[] = null;
+    let returnVal: Props | Props[] = null;
 
     // オーバーロードの分岐
     if(typeof coin === 'string') {
@@ -223,7 +223,7 @@ export class BinanceService {
    * 所有している全通貨を指定通貨に換算
    * @param binance
    */
-  async convertAllCoins(to: string, binance: typeof Binance) {
+  async convertAllCoins(to: string, binance: typeof Binance): Promise<void> {
     // 通貨リストの取得
     const coinList = await binanceUtil.getHasCoinList(true, binance);
     coinList.push(config.fiat); // fiatも対象にする

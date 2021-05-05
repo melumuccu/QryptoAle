@@ -21,3 +21,9 @@ export interface Trade {
   isMaker: boolean,
   isBestMatch: boolean
 }
+
+// Props型
+export interface Props {
+  coin: string,
+  aveBuyPrice: number
+}
