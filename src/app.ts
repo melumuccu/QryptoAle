@@ -74,8 +74,8 @@ const {cyan, red, green, yellow, magenta, reset} = config; // ログの色付け
 
 // // 1つのsymbolについて 現在保有数量から平均取得価額を算出
 // // 定期実行する
-// setTimeout(binanceService.showAvePriceHaveNow.bind(binanceService), 0, binance);
-// setInterval(binanceService.showAvePriceHaveNow.bind(binanceService), 7000, binance);
+// setTimeout(binanceService.showAvePriceHaveNow.bind(binanceService), 0, coin, binance);
+// setInterval(binanceService.showAvePriceHaveNow.bind(binanceService), 7000, coin, binance);
 
 
 // 現在保有しているsymbol全てについて

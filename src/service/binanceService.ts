@@ -85,13 +85,14 @@ export class BinanceService {
   }
 
   /**
-   * 1つのsymbolについて
+   * 指定通貨について
    * 現在保有数量から平均取得価額を算出する
+   * @param coin 指定通貨
    * @param binance
    */
-  async showAvePriceHaveNow(binance: typeof Binance): Promise<void> {
+  async showAvePriceHaveNow(coin: string, binance: typeof Binance): Promise<void> {
     // 平均購入価額を算出
-    const avePriceHaveNow = await this.calAvePriceHaveNow(config.coin, binance);
+    const avePriceHaveNow = await this.calAvePriceHaveNow(coin, binance);
 
     // 現在価格を取得
     const targetSymbol = avePriceHaveNow.coin + config.fiat;
