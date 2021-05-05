@@ -32,7 +32,7 @@ export class BinanceService {
   async funcCalAvePriceHaveNow(coin: string, binance: typeof Binance): Promise<Props>{
 
     // 現在持っている数量分の購入履歴を取得
-    const buyTradesHaveNow = await calculateUtil.calTradesHaveNow(coin, binance);
+    const buyTradesHaveNow = await calculateUtil.buyTradesOfNowAmount(coin, binance);
     // console.log("file: binanceService.ts => line 67 => calAvePriceHaveNow => buyTradesHaveNow", buyTradesHaveNow);
 
     // 購入履歴から平均価格を算出

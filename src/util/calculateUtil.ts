@@ -67,20 +67,20 @@ export class CalculateUtil {
    * @param binance
    * @returns 購入履歴
    */
-  async calTradesHaveNow(coin: string, binance: typeof Binance): Promise<Trade[]> {
-  // console.log("file: calculateUtil.ts => line 123 => calTradesHaveNow => coin", coin);
+  async buyTradesOfNowAmount(coin: string, binance: typeof Binance): Promise<Trade[]> {
+  // console.log("file: calculateUtil.ts => line 123 => buyTradesOfNowAmount => coin", coin);
 
     const symbol = coin + config.fiat;
-    // console.log("file: calculateUtil.ts => line 127 => calTradesHaveNow => symbol", symbol);
+    // console.log("file: calculateUtil.ts => line 127 => buyTradesOfNowAmount => symbol", symbol);
 
     // 通貨の現在保有数量を取得
     const coinBalance: string = await binanceUtil.getCoinBalance(true, coin, binance);
-    // console.log("file: calculateUtil.ts => line 130 => calTradesHaveNow => coinBalance", coinBalance);
+    // console.log("file: calculateUtil.ts => line 130 => buyTradesOfNowAmount => coinBalance", coinBalance);
     let coinBalanceB: BigNumber = new BigNumber( coinBalance );
 
     // シンボルの購入履歴を取得
     const symbolBuyTrades = await binanceUtil.getSymbolTradesBuyOrSell(config.buy, symbol, binance);
-    // console.log("file: calculateUtil.ts => line 135 => calTradesHaveNow => symbolBuyTrades", symbolBuyTrades);
+    // console.log("file: calculateUtil.ts => line 135 => buyTradesOfNowAmount => symbolBuyTrades", symbolBuyTrades);
 
     // 現在の保有数量にあたる購入履歴を抜き出し(最新の購入履歴から抜き出し)
     const tmpTrades: Trade[] = [];
@@ -89,11 +89,11 @@ export class CalculateUtil {
 
       // 取引量
       const buyQtyB: BigNumber = new BigNumber( symbolBuyTrades[i]['qty'] );
-      // console.log("file: calculateUtil.ts => line 144 => calTradesHaveNow => buyQtyB", buyQtyB.toNumber());
+      // console.log("file: calculateUtil.ts => line 144 => buyTradesOfNowAmount => buyQtyB", buyQtyB.toNumber());
 
       // 現在保有数量-購入取引量
       coinBalanceB = coinBalanceB.minus( buyQtyB );
-      // console.log("file: calculateUtil.ts => line 148 => calTradesHaveNow => coinBalanceB", coinBalanceB.toNumber());
+      // console.log("file: calculateUtil.ts => line 148 => buyTradesOfNowAmount => coinBalanceB", coinBalanceB.toNumber());
 
       if( coinBalanceB.lt(0) ) {
         // マイナスになった(=現在保有数量をここまでの購入取引量が上回った)場合
@@ -102,7 +102,7 @@ export class CalculateUtil {
 
         // 配列をプッシュ
         tmpTrades.push( symbolBuyTrades[i] );
-        // console.log("file: calculateUtil.ts => line 157 => calTradesHaveNow => tmpTrades", tmpTrades);
+        // console.log("file: calculateUtil.ts => line 157 => buyTradesOfNowAmount => tmpTrades", tmpTrades);
 
         // console.log('------------------for break');
         break;
@@ -110,7 +110,7 @@ export class CalculateUtil {
       }else{
         // 配列をプッシュ
         tmpTrades.push( symbolBuyTrades[i] );
-        // console.log("file: calculateUtil.ts => line 165 => calTradesHaveNow => tmpTrades", tmpTrades);
+        // console.log("file: calculateUtil.ts => line 165 => buyTradesOfNowAmount => tmpTrades", tmpTrades);
 
         // console.log('------------------for continue');
         continue;
