@@ -4,7 +4,7 @@
     "target": "es2020",
     "jsx": "preserve",
     "outDir": "./build/js/",
-    // "strict": true,
+    "strict": true,
     "sourceMap": true,
     "types": [
       "node",

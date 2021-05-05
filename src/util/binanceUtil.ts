@@ -4,7 +4,7 @@
 
 import BigNumber from "bignumber.js";
 import {Config} from '../config/config';
-import {Trade} from './otherUtil';
+import {Ticker, Balance, Trade} from './otherUtil';
 
 const Binance = require('node-binance-api');
 
@@ -26,7 +26,7 @@ export class BinanceUtil {
   getSymbolPrice(symbol: string, binance: typeof Binance): Promise<string> {
     return new Promise((resolve, reject) => {
 
-      binance.prices(function(error, ticker) {
+      binance.prices(function(error: string, ticker: Ticker) {
         if( ticker[symbol] != null ) {
           return resolve(ticker[symbol]);
         }else{
@@ -47,14 +47,14 @@ export class BinanceUtil {
   getCoinBalance(includeOnOrder: boolean, coin: string, binance: typeof Binance): Promise<string> {
     return new Promise((resolve, reject) => {
 
-      binance.balance(function(error, balances) {
+      binance.balance(function(error: string, balances: Balance) {
         if( balances[coin] == null ) {
           return reject(new Error(error));
         }
 
         const availableB = new BigNumber( parseFloat(balances[coin].available) );
         const onOrderB = new BigNumber( parseFloat(balances[coin].onOrder) );
-        let balanceB: BigNumber = null;
+        let balanceB: BigNumber;
         if(includeOnOrder) {
           // onOrderを含める
           balanceB = availableB.plus(onOrderB);
@@ -79,7 +79,7 @@ export class BinanceUtil {
   getSymbolTrades(symbol: string, binance: typeof Binance): Promise<Trade[]> {
     return new Promise((resolve, reject) => {
 
-      binance.trades(symbol, (error, trades:Trade[], symbol: string) => {
+      binance.trades(symbol, (error: string, trades: Trade[], symbol: string) => {
         // UnixTime(13桁:ミリ秒)を変換
         for( let key in trades ) {
           let dateTime = new Date(trades[key]['time']);
@@ -127,31 +127,29 @@ export class BinanceUtil {
    * @param binance
    * @returns 全ペアの現在保有額
    */
-  getAllBalances(includeOnOrder: boolean, binance: typeof Binance): Promise<{[key: string]: string;}> {
+  getAllBalances(includeOnOrder: boolean, binance: typeof Binance): Promise<Balance> {
     return new Promise((resolve, reject) => {
 
-      let balanceOfHasCoins: {[key: string]: string;} = {};
-      binance.balance(function(error, balances) {
-        if( typeof balances !== undefined ) {
+      let balanceOfHasCoins: Balance = {};
+      binance.balance(function(error: string, balances: Balance) {
           // 保有している通貨のみに限定
           for( let balance in balances ) {
 
-            const availableB = new BigNumber( parseFloat(balances[balance].available) );
-            const onOrderB = new BigNumber( parseFloat(balances[balance].onOrder) );
+          const availableB = new BigNumber( parseFloat(balances[balance].available) );
+          const onOrderB = new BigNumber( parseFloat(balances[balance].onOrder) );
 
-            let tmpBalanceB;
-            if(includeOnOrder) {
-              // 注文中の数量を含む
-              tmpBalanceB =  availableB.plus(onOrderB);
-            }else{
-              // 注文中の数量を含まない
-              tmpBalanceB =  availableB;
-            }
+          let tmpBalanceB;
+          if(includeOnOrder) {
+            // 注文中の数量を含む
+            tmpBalanceB =  availableB.plus(onOrderB);
+          }else{
+            // 注文中の数量を含まない
+            tmpBalanceB =  availableB;
+          }
 
-            if( tmpBalanceB.toNumber() !== 0 ) {
-              balanceOfHasCoins[balance] = balances[balance];
-              // console.log("file: binanceUtil.ts => line 130 => binance.balance => balanceOfHasCoins", balanceOfHasCoins);
-            }
+          if( tmpBalanceB.toNumber() !== 0 ) {
+            balanceOfHasCoins[balance] = balances[balance];
+            // console.log("file: binanceUtil.ts => line 130 => binance.balance => balanceOfHasCoins", balanceOfHasCoins);
           }
         }
 
@@ -178,30 +176,31 @@ export class BinanceUtil {
       const symbolPrice: string | void = await this.getSymbolPrice(symbol, binance)
                                                   .catch(error => { console.error(red + symbol + ": can't get price " + reset) });
 
-      if(typeof symbolPrice === "undefined") {
-        // console.error(red + balance + " file: binanceUtil.ts => line 169 => getHasCoinList => symbolPrice", symbolPrice + reset);
-      }
-      const symbolPriceB = new BigNumber(parseFloat(symbolPrice));
+      if(typeof symbolPrice !== "undefined") {
+        const symbolPriceB = new BigNumber(parseFloat(symbolPrice));
 
-      const availableAmountB = new BigNumber(parseFloat(balanceOfHasCoins[balance]['available']));
-      const onOrderB = new BigNumber(parseFloat(balanceOfHasCoins[balance]['onOrder']));
-      let amountB;
+        const availableAmountB = new BigNumber(parseFloat(balanceOfHasCoins[balance]['available']));
+        const onOrderB = new BigNumber(parseFloat(balanceOfHasCoins[balance]['onOrder']));
+        let amountB;
 
-      // onOrderの数量を含めるか否か
-      if(includeOnOrder) {
-        amountB = availableAmountB.plus(onOrderB);
+        // onOrderの数量を含めるか否か
+        if(includeOnOrder) {
+          amountB = availableAmountB.plus(onOrderB);
+        }else{
+          amountB = availableAmountB;
+        }
+
+        // fiat換算
+        const convartUsdt: BigNumber = amountB.times( symbolPriceB );
+
+        // 少額通貨は省略
+        if( convartUsdt.gt(1) ) { // more than 1$
+          balanceList.push(balance);
+        }
       }else{
-        amountB = availableAmountB;
-      }
-
-      // fiat換算
-      const convartUsdt: BigNumber = amountB.times( symbolPriceB );
-
-      // 少額通貨は省略
-      if( convartUsdt.gt(1) ) { // more than 1$
-        balanceList.push(balance);
-      }
-    }
+        // console.error(red + balance + " file: binanceUtil.ts => line 169 => getHasCoinList => symbolPrice" + "symbolPrice === undefined" + reset);
+      } // --------if end
+    } // --------for end
 
     return balanceList;
   }

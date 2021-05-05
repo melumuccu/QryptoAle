@@ -5,6 +5,21 @@ export class OtherUtil {
 
 }
 
+// -----------------interface
+
+// Ticker型
+export interface Ticker {
+  [x: string]: string | PromiseLike<string>
+}
+
+// Balance型
+export interface Balance {
+  [x: string]: {
+    available: string
+    onOrder: string;
+  };
+}
+
 // Trade型
 export interface Trade {
   symbol: string,
