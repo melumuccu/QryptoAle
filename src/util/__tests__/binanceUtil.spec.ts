@@ -1,6 +1,6 @@
-import {Config} from '../src/config/config';
-import {BinanceUtil} from '../src/util/binanceUtil';
-import {login} from '../src/config/login';
+import {Config} from '../../config/config';
+import {BinanceUtil} from '../binanceUtil';
+import {login} from '../../config/login';
 
 const Binance = require('node-binance-api');
 
