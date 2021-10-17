@@ -23,6 +23,7 @@ const {cyan, red, green, yellow, magenta, reset} = config // ログの色付け�
 // --------------------------------
 
 export class BinanceService {
+  toJpy: BigNumber | undefined;
 
   /**
    * 関数calAvePriceHaveNowの処理部分
@@ -174,8 +175,10 @@ export class BinanceService {
     let convertedPrice: number;
     if(to == config.jpy) {
       // JPY換算の場合
-
-      const toJpy = 108;  // 仮
+      if(!this.toJpy) {
+        // 円/ドルレート未定義の場合
+        this.toJpy = new BigNumber(await otherUtil.oneUsdToJpy());
+      }
       const symbol = from + config.fiat;
 
       // 換算対象のbalanceを取得
@@ -194,7 +197,7 @@ export class BinanceService {
       }
 
       // JPY換算
-      const convertedJpyB = convertedfiatB.times(toJpy).dp(0);
+      const convertedJpyB = convertedfiatB.times(this.toJpy).dp(0);
 
       convertedPrice = convertedJpyB.toNumber();
     }else{

@@ -23,7 +23,9 @@
         "tsconfig": "tsconfig.json"
       }
     },
-    "testMatch": [ "**/__tests__/*.spec.+(ts|tsx|js)" ],
+    "testMatch": [
+      "**/__tests__/*.spec.+(ts|tsx|js)"
+    ],
     "testRegex": [],
     "preset": "ts-jest"
   },
@@ -31,6 +33,7 @@
   "license": "MIT",
   "devDependencies": {
     "@types/jest": "^26.0.23",
+    "@types/node-fetch": "^2.5.12",
     "jest": "^26.6.3",
     "ts-jest": "^26.5.5",
     "ts-node": "^9.1.1",
@@ -41,7 +44,8 @@
     "@types/bignumber.js": "^5.0.0",
     "@types/node": "^14.14.37",
     "bignumber.js": "^9.0.1",
-    "node-binance-api": "^0.12.5"
+    "node-binance-api": "^0.12.5",
+    "node-fetch": "^2.6.5"
   },
   "description": ""
 }

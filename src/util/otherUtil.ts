@@ -1,7 +1,20 @@
+import fetch from 'node-fetch';
 export class OtherUtil {
   // プリミティブの判定
   isString = (arg: any): arg is string  => typeof arg === "string";
   isNumber = (arg: any): arg is number  => typeof arg === "number";
+
+  /**
+   * 現在の円/ドルレートを取得
+   */
+  async oneUsdToJpy() {
+    const res = await fetch('https://api.exchangerate-api.com/v4/latest/USD')
+    const data = await res.json();
+    const rateOfUsdToJpy = data.rates.JPY
+    console.log("file: app.ts => line 117 => rateOfUsdToJpy", rateOfUsdToJpy);
+    return rateOfUsdToJpy
+  }
+
 
 }
 
