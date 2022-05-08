@@ -71,4 +71,5 @@ typings/
 /dist
 
 # その他
-login.*
+login.ts  // git update-index --skip-worktree [ファイル名]で外したため注意
+/build
